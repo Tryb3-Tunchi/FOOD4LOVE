@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  body {
+    position: relative;
+    background:
+      radial-gradient(
+        900px circle at 18% -12%,
+        rgba(245, 158, 11, 0.22),
+        transparent 55%
+      ),
+      radial-gradient(
+        780px circle at 88% -6%,
+        rgba(244, 63, 94, 0.14),
+        transparent 55%
+      ),
+      radial-gradient(
+        620px circle at 48% 120%,
+        rgba(251, 113, 133, 0.16),
+        transparent 60%
+      ),
+      linear-gradient(180deg, #fff7ed 0%, #fff 40%, #fff1f2 100%);
+    color: #0f172a;
+    font-family:
+      "Space Grotesk",
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      Segoe UI,
+      Roboto,
+      Helvetica,
+      Arial,
+      "Apple Color Emoji",
+      "Segoe UI Emoji";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -80px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.22;
+    background:
+      radial-gradient(
+        520px circle at 20% 18%,
+        rgba(245, 158, 11, 0.22),
+        transparent 62%
+      ),
+      radial-gradient(
+        520px circle at 86% 12%,
+        rgba(244, 63, 94, 0.16),
+        transparent 62%
+      ),
+      repeating-linear-gradient(
+        135deg,
+        rgba(2, 6, 23, 0.045) 0px,
+        rgba(2, 6, 23, 0.045) 1px,
+        transparent 1px,
+        transparent 10px
+      );
+    background-size:
+      1200px 1200px,
+      1200px 1200px,
+      22px 22px;
+    background-position:
+      0px 0px,
+      0px 0px,
+      0px 0px;
+    animation: lovefood_float 18s linear infinite;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  html.dark body {
+    background:
+      radial-gradient(
+        980px circle at 14% -18%,
+        rgba(245, 158, 11, 0.22),
+        transparent 55%
+      ),
+      radial-gradient(
+        820px circle at 92% -14%,
+        rgba(244, 63, 94, 0.18),
+        transparent 55%
+      ),
+      radial-gradient(
+        680px circle at 50% 118%,
+        rgba(251, 113, 133, 0.14),
+        transparent 60%
+      ),
+      linear-gradient(180deg, #070a12 0%, #090a10 48%, #07060b 100%);
+    color: #f9fafb;
+  }
+
+  html.dark body::before {
+    opacity: 0.18;
+    background:
+      radial-gradient(
+        520px circle at 18% 12%,
+        rgba(245, 158, 11, 0.22),
+        transparent 62%
+      ),
+      radial-gradient(
+        520px circle at 88% 10%,
+        rgba(244, 63, 94, 0.18),
+        transparent 62%
+      ),
+      repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.05) 0px,
+        rgba(255, 255, 255, 0.05) 1px,
+        transparent 1px,
+        transparent 12px
+      );
+    background-size:
+      1200px 1200px,
+      1200px 1200px,
+      26px 26px;
+  }
+
+  @keyframes lovefood_float {
+    0% {
+      transform: translate3d(0, 0, 0);
+      background-position:
+        0px 0px,
+        0px 0px,
+        0px 0px;
+    }
+    50% {
+      transform: translate3d(-10px, 8px, 0);
+      background-position:
+        120px -80px,
+        -140px 90px,
+        80px 40px;
+    }
+    100% {
+      transform: translate3d(0, 0, 0);
+      background-position:
+        240px -160px,
+        -280px 180px,
+        160px 80px;
+    }
+  }
+
+  a {
+    color: #e11d48;
+  }
+
+  a:hover {
+    color: #fb7185;
+  }
+}
