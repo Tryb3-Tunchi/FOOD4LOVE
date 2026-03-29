@@ -62,6 +62,7 @@ export type Match = {
   id: string;
   buyer_id: string;
   cook_id: string;
+  expires_at: string | null;
   created_at: string;
 };
 
@@ -71,4 +72,27 @@ export type Message = {
   sender_id: string;
   body: string;
   created_at: string;
+};
+
+export type CookStory = {
+  id: string;
+  cook_id: string;
+  title: string;
+  description: string | null;
+  menu_items: string[] | null;
+  photo_url: string | null;
+  is_active: boolean;
+  expires_at: string;
+  created_at: string;
+};
+
+export type UserStreak = {
+  id: string;
+  user_id: string;
+  current_streak: number;
+  longest_streak: number;
+  last_swipe_date: string;
+  super_likes_available: number;
+  created_at: string;
+  updated_at: string;
 };

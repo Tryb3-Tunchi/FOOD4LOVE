@@ -352,6 +352,80 @@ for delete
 to authenticated
 using (bucket_id = 'private-kyc' and split_part(name, '/', 1) = auth.uid()::text);
 
+alter table public.matches add column if not exists expires_at timestamptz null;
+
+create table if not exists public.cook_stories (
+  id uuid primary key default gen_random_uuid(),
+  cook_id uuid not null references public.profiles (id) on delete cascade,
+  title text not null,
+  description text null,
+  menu_items text[] null,
+  photo_url text null,
+  is_active boolean not null default true,
+  expires_at timestamptz not null default (now() + interval '24 hours'),
+  created_at timestamptz not null default now()
+);
+
+alter table public.cook_stories enable row level security;
+
+drop policy if exists "stories_select" on public.cook_stories;
+create policy "stories_select"
+on public.cook_stories for select to authenticated
+using (true);
+
+drop policy if exists "stories_insert" on public.cook_stories;
+create policy "stories_insert"
+on public.cook_stories for insert to authenticated
+with check (auth.uid() = cook_id);
+
+drop policy if exists "stories_update_own" on public.cook_stories;
+create policy "stories_update_own"
+on public.cook_stories for update to authenticated
+using (auth.uid() = cook_id)
+with check (auth.uid() = cook_id);
+
+drop policy if exists "stories_delete" on public.cook_stories;
+create policy "stories_delete"
+on public.cook_stories for delete to authenticated
+using (
+  auth.uid() = cook_id
+  or exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true)
+);
+
+create table if not exists public.user_streaks (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null unique references public.profiles (id) on delete cascade,
+  current_streak int not null default 1,
+  longest_streak int not null default 1,
+  last_swipe_date date not null default current_date,
+  super_likes_available int not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.user_streaks enable row level security;
+
+drop policy if exists "streaks_select_own" on public.user_streaks;
+create policy "streaks_select_own"
+on public.user_streaks for select to authenticated
+using (auth.uid() = user_id);
+
+drop policy if exists "streaks_insert" on public.user_streaks;
+create policy "streaks_insert"
+on public.user_streaks for insert to authenticated
+with check (auth.uid() = user_id);
+
+drop policy if exists "streaks_update" on public.user_streaks;
+create policy "streaks_update"
+on public.user_streaks for update to authenticated
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists "streaks_admin_select" on public.user_streaks;
+create policy "streaks_admin_select"
+on public.user_streaks for select to authenticated
+using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true));
+
 drop policy if exists "messages_select" on public.messages;
 create policy "messages_select"
 on public.messages

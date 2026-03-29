@@ -572,11 +572,13 @@ export function useSwipe(input: SwipeInput): SwipeState {
             const b = activeCook.id;
             const buyer_id = a < b ? a : b;
             const cook_id = a < b ? b : a;
+            const expires_at = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
             const { error: matchError } = await supabase
               .from("matches")
               .upsert({
                 buyer_id,
                 cook_id,
+                expires_at,
               });
             if (matchError) throw matchError;
           }

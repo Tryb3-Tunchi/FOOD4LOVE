@@ -29,44 +29,48 @@ export function ProfileSetupPage() {
   const [error, setError] = useState<string | null>(null);
 
   const cuisineOptions = [
+    "Nigerian",
+    "Yoruba",
+    "Igbo",
+    "Hausa",
+    "Ghanaian",
+    "West African",
+    "Afro-fusion",
     "Italian",
-    "Mexican",
-    "Japanese",
-    "Korean",
-    "Thai",
-    "Indian",
+    "Asian",
     "Mediterranean",
-    "Chinese",
-    "American",
-    "Middle Eastern",
-    "African",
     "Vegan",
+    "International",
   ];
 
   const interestOptions = [
-    "Street food",
-    "Fine dining",
     "Home cooking",
-    "Desserts",
-    "Coffee",
-    "Spicy",
-    "Healthy",
-    "Seafood",
-    "BBQ",
+    "Street food",
+    "Jollof parties",
+    "Suya nights",
+    "Fine dining",
     "Brunch",
+    "Late night",
+    "Comfort food",
+    "Healthy eating",
+    "BBQ",
+    "Small chops",
+    "Spicy",
   ];
 
   const favoriteFoodOptions = [
-    "Tacos",
-    "Sushi",
-    "Ramen",
-    "Burgers",
-    "Pizza",
-    "Curry",
-    "Pasta",
-    "Wings",
-    "Salad",
-    "Ice cream",
+    "Jollof Rice",
+    "Egusi Soup",
+    "Pounded Yam",
+    "Pepper Soup",
+    "Suya",
+    "Fried Plantain",
+    "Efo Riro",
+    "Moi Moi",
+    "Ofada Rice",
+    "Amala",
+    "Shawarma",
+    "Akara",
   ];
 
   const canSave = useMemo(() => {
@@ -143,7 +147,7 @@ export function ProfileSetupPage() {
     <div className="mx-auto flex min-h-svh max-w-md flex-col justify-center px-4 py-10">
       <div className="mb-6">
         <div className="text-sm font-semibold text-brand-700 dark:text-brand-300">
-          LoveFoodMatch
+          Food4Love
         </div>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-zinc-50">
           Set up your profile
