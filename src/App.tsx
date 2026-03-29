@@ -147,7 +147,7 @@ function Shell() {
       <Outlet />
       {!isChat ? (
         <nav className="sticky bottom-0 mx-auto w-full max-w-md px-4 pb-4">
-          <div className="rounded-2xl border border-black/10 bg-white/70 p-2 backdrop-blur dark:border-white/10 dark:bg-slate-950/40">
+          <div className="rounded-2xl border border-black/10 bg-white/80 p-2 backdrop-blur shadow-lg dark:border-white/[0.08] dark:bg-slate-900/90 dark:shadow-black/40">
             <div className="flex items-center justify-between gap-2">
               <div className="grid flex-1 grid-cols-5 gap-1">
                 {navItems.map(({ to, label, Icon }) => {

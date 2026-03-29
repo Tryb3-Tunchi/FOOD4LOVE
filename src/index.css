@@ -88,48 +88,53 @@
   html.dark body {
     background:
       radial-gradient(
-        980px circle at 14% -18%,
-        rgba(245, 158, 11, 0.22),
-        transparent 55%
+        1100px circle at 10% -20%,
+        rgba(245, 158, 11, 0.28),
+        transparent 52%
       ),
       radial-gradient(
-        820px circle at 92% -14%,
-        rgba(244, 63, 94, 0.18),
-        transparent 55%
+        900px circle at 94% -16%,
+        rgba(244, 63, 94, 0.22),
+        transparent 52%
       ),
       radial-gradient(
-        680px circle at 50% 118%,
-        rgba(251, 113, 133, 0.14),
-        transparent 60%
+        700px circle at 50% 115%,
+        rgba(139, 92, 246, 0.14),
+        transparent 58%
       ),
-      linear-gradient(180deg, #070a12 0%, #090a10 48%, #07060b 100%);
-    color: #f9fafb;
+      linear-gradient(160deg, #0d0a16 0%, #0c0c14 45%, #0a0810 100%);
+    color: #f1f5f9;
   }
 
   html.dark body::before {
-    opacity: 0.18;
+    opacity: 0.22;
     background:
       radial-gradient(
-        520px circle at 18% 12%,
-        rgba(245, 158, 11, 0.22),
-        transparent 62%
+        600px circle at 16% 10%,
+        rgba(245, 158, 11, 0.26),
+        transparent 60%
       ),
       radial-gradient(
-        520px circle at 88% 10%,
-        rgba(244, 63, 94, 0.18),
-        transparent 62%
+        600px circle at 90% 8%,
+        rgba(244, 63, 94, 0.20),
+        transparent 60%
       ),
       repeating-linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.05) 0px,
-        rgba(255, 255, 255, 0.05) 1px,
+        rgba(255, 255, 255, 0.04) 0px,
+        rgba(255, 255, 255, 0.04) 1px,
         transparent 1px,
-        transparent 12px
+        transparent 14px
       );
     background-size:
-      1200px 1200px,
-      1200px 1200px,
-      26px 26px;
+      1400px 1400px,
+      1400px 1400px,
+      28px 28px;
+  }
+
+  html.dark * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.12) transparent;
   }
 
   @keyframes lovefood_float {
