@@ -6,18 +6,22 @@ const demoCooks: Profile[] = [
   {
     id: "demo-1",
     role: "cook",
-    name: "Chioma • Jollof Queen",
+    name: "Chioma",
     nickname: "Chioma",
     looking_for: "Food dates and loyal customers",
     age: 26,
     avatar_url:
-      "https://images.unsplash.com/photo-1523986371872-9d3ba2e2f642?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
     phone: null,
-    bio: "If you love smoky jollof, soft plantain, and proper stew… you’re in the right place.",
+    bio: "If you love smoky jollof, soft plantain, and proper stew… you're in the right place.",
     cuisines: ["Nigerian"],
     interests: ["Home cooking", "Spicy", "Street food"],
     favorite_foods: ["Jollof Rice", "Fried Plantain", "Chicken"],
-    photos: null,
+    photos: [
+      "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1604908176997-125f25cc500c?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80",
+    ],
     specialty: "Jollof Rice",
     price_min: 2500,
     price_max: 7000,
@@ -30,26 +34,30 @@ const demoCooks: Profile[] = [
     kyc_country: null,
     kyc_selfie: null,
     kyc_id_doc: null,
-    lat: null,
-    lng: null,
+    lat: 6.4541,
+    lng: 3.3947,
     created_at: "",
     updated_at: "",
   },
   {
     id: "demo-2",
     role: "cook",
-    name: "Tunde • Suya King",
+    name: "Tunde",
     nickname: "Tunde",
     looking_for: "Late-night suya and good vibes",
     age: 29,
     avatar_url:
-      "https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=1200&q=80",
     phone: null,
     bio: "Proper suya, hot yaji, and cold drinks. Come chop.",
     cuisines: ["Nigerian"],
     interests: ["Street food", "BBQ", "Spicy"],
     favorite_foods: ["Suya", "Peppered Snail", "Asun"],
-    photos: null,
+    photos: [
+      "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=1200&q=80",
+    ],
     specialty: "Suya",
     price_min: 2000,
     price_max: 6000,
@@ -62,26 +70,30 @@ const demoCooks: Profile[] = [
     kyc_country: null,
     kyc_selfie: null,
     kyc_id_doc: null,
-    lat: null,
-    lng: null,
+    lat: 6.46,
+    lng: 3.41,
     created_at: "",
     updated_at: "",
   },
   {
     id: "demo-3",
     role: "cook",
-    name: "Amina • Egusi Babe",
+    name: "Amina",
     nickname: "Amina",
     looking_for: "Soft life + good soup",
     age: 25,
     avatar_url:
-      "https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=1200&q=80",
     phone: null,
     bio: "Egusi that hits, pounded yam that stretches, and stew that behaves.",
     cuisines: ["Nigerian"],
     interests: ["Home cooking", "Healthy", "Fine dining"],
     favorite_foods: ["Egusi Soup", "Pounded Yam", "Semo"],
-    photos: null,
+    photos: [
+      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
+    ],
     specialty: "Egusi Soup",
     price_min: 3500,
     price_max: 9000,
@@ -94,26 +106,30 @@ const demoCooks: Profile[] = [
     kyc_country: null,
     kyc_selfie: null,
     kyc_id_doc: null,
-    lat: null,
-    lng: null,
+    lat: 6.455,
+    lng: 3.385,
     created_at: "",
     updated_at: "",
   },
   {
     id: "demo-4",
     role: "cook",
-    name: "Sade • Efo Riro",
+    name: "Sade",
     nickname: "Sade",
     looking_for: "Date night with proper swallow",
     age: 30,
     avatar_url:
-      "https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80",
     phone: null,
-    bio: "Efo riro with assorted meat. If you’re serious, you’ll lick the plate.",
+    bio: "Efo riro with assorted meat. If you're serious, you'll lick the plate.",
     cuisines: ["Nigerian"],
     interests: ["Home cooking", "Fine dining", "Spicy"],
     favorite_foods: ["Efo Riro", "Pounded Yam", "Assorted meat"],
-    photos: null,
+    photos: [
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1200&q=80",
+    ],
     specialty: "Efo Riro",
     price_min: 5000,
     price_max: 15000,
@@ -126,26 +142,30 @@ const demoCooks: Profile[] = [
     kyc_country: null,
     kyc_selfie: null,
     kyc_id_doc: null,
-    lat: null,
-    lng: null,
+    lat: 6.448,
+    lng: 3.401,
     created_at: "",
     updated_at: "",
   },
   {
     id: "demo-5",
     role: "cook",
-    name: "Bola • Moi Moi",
+    name: "Bola",
     nickname: "Bola",
     looking_for: "Brunch and small chops",
     age: 27,
     avatar_url:
-      "https://images.unsplash.com/photo-1514517604298-cf80e0fb7f93?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?auto=format&fit=crop&w=1200&q=80",
     phone: null,
-    bio: "Soft moi moi, akara that’s not oily, and pap that’s smooth.",
+    bio: "Soft moi moi, akara that's not oily, and pap that's smooth.",
     cuisines: ["Nigerian"],
     interests: ["Brunch", "Healthy", "Home cooking"],
     favorite_foods: ["Moi Moi", "Akara", "Pap"],
-    photos: null,
+    photos: [
+      "https://images.unsplash.com/photo-1496440737103-cd596325d314?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=1200&q=80",
+    ],
     specialty: "Moi Moi",
     price_min: 2000,
     price_max: 5000,
@@ -158,26 +178,64 @@ const demoCooks: Profile[] = [
     kyc_country: null,
     kyc_selfie: null,
     kyc_id_doc: null,
-    lat: null,
-    lng: null,
+    lat: 6.461,
+    lng: 3.39,
     created_at: "",
     updated_at: "",
   },
   {
     id: "demo-6",
+    role: "cook",
+    name: "Adaeze",
+    nickname: "Ada",
+    looking_for: "Regulars who love pepper soup",
+    age: 28,
+    avatar_url:
+      "https://images.unsplash.com/photo-1551069613-1904dbdcda11?auto=format&fit=crop&w=1200&q=80",
+    phone: null,
+    bio: "Catfish pepper soup to cure anything — heartbreak, cold, or just hunger.",
+    cuisines: ["Nigerian"],
+    interests: ["Comfort food", "Spicy", "Late night"],
+    favorite_foods: ["Catfish Pepper Soup", "Goat Pepper Soup"],
+    photos: [
+      "https://images.unsplash.com/photo-1546961342-ea5f62d5a27b?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80",
+    ],
+    specialty: "Catfish Pepper Soup",
+    price_min: 3000,
+    price_max: 8500,
+    is_bot: false,
+    bot_persona: null,
+    is_admin: false,
+    onboarding_completed: true,
+    kyc_status: "verified",
+    kyc_full_name: null,
+    kyc_country: null,
+    kyc_selfie: null,
+    kyc_id_doc: null,
+    lat: 6.44,
+    lng: 3.42,
+    created_at: "",
+    updated_at: "",
+  },
+  {
+    id: "demo-7",
     role: "buyer",
-    name: "Ngozi • Soft Spot",
+    name: "Ngozi",
     nickname: "Ngozi",
     looking_for: "Food dates",
     age: 25,
     avatar_url:
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1542596768-5d1d21f1cf98?auto=format&fit=crop&w=1200&q=80",
     phone: null,
-    bio: "I’m here for good vibes and better food. If you make jollof, I’m listening.",
+    bio: "I'm here for good vibes and better food. If you make jollof, I'm listening.",
     cuisines: ["Nigerian"],
     interests: ["Brunch", "Coffee", "Desserts"],
     favorite_foods: ["Jollof Rice", "Suya"],
-    photos: null,
+    photos: [
+      "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=1200&q=80",
+    ],
     specialty: null,
     price_min: null,
     price_max: null,
@@ -191,26 +249,28 @@ const demoCooks: Profile[] = [
     kyc_country: null,
     kyc_selfie: null,
     kyc_id_doc: null,
-    lat: null,
-    lng: null,
+    lat: 6.452,
+    lng: 3.395,
     created_at: "",
     updated_at: "",
   },
   {
-    id: "demo-7",
+    id: "demo-8",
     role: "buyer",
-    name: "Chinedu • Pepper Gang",
+    name: "Chinedu",
     nickname: "Chinedu",
     looking_for: "Food buddies",
     age: 29,
     avatar_url:
-      "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80",
     phone: null,
     bio: "If the stew no pepper, we fit add am.",
     cuisines: ["Nigerian"],
     interests: ["Street food", "Spicy", "BBQ"],
     favorite_foods: ["Pepper Soup", "Suya"],
-    photos: null,
+    photos: [
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=80",
+    ],
     specialty: null,
     price_min: null,
     price_max: null,
@@ -224,8 +284,8 @@ const demoCooks: Profile[] = [
     kyc_country: null,
     kyc_selfie: null,
     kyc_id_doc: null,
-    lat: null,
-    lng: null,
+    lat: 6.458,
+    lng: 3.41,
     created_at: "",
     updated_at: "",
   },
@@ -238,6 +298,7 @@ type SwipeState = {
   like: () => Promise<void>;
   skip: () => void;
   refresh: () => Promise<void>;
+  isExhausted: boolean;
 };
 
 type SwipeInput = {
@@ -304,6 +365,7 @@ export function useSwipe(input: SwipeInput): SwipeState {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const activeCook = cooks[activeIndex] ?? null;
+  const isExhausted = !isLoading && activeIndex >= cooks.length;
 
   const refresh = useCallback(async () => {
     if (!buyerId) {
@@ -341,7 +403,7 @@ export function useSwipe(input: SwipeInput): SwipeState {
         );
       }
 
-      const { data: cooksData, error: cooksError } = await cooksQuery.limit(50);
+      const { data: cooksData, error: cooksError } = await cooksQuery.limit(80);
       if (cooksError) throw cooksError;
 
       const rawCooks =
@@ -403,30 +465,33 @@ export function useSwipe(input: SwipeInput): SwipeState {
         );
       }
 
-      const finalList = (filtered.length > 0 ? filtered : scored)
+      const sortedFiltered = (filtered.length > 0 ? filtered : scored)
         .sort((a, b) => b.score - a.score)
         .map((x) => x.cook);
 
+      let finalList: Profile[];
       if (filterRole === "all" && buyerProfile?.role === "buyer") {
-        const cookPool = finalList.filter((p) => p.role === "cook");
-        const buyerPool = finalList.filter((p) => p.role === "buyer");
+        const cookPool = sortedFiltered.filter((p) => p.role === "cook");
+        const buyerPool = sortedFiltered.filter((p) => p.role === "buyer");
         const mixed: Profile[] = [];
-        let i = 0;
-        let j = 0;
-        while (mixed.length < finalList.length && (i < cookPool.length || j < buyerPool.length)) {
-          for (let c = 0; c < 4 && i < cookPool.length; c += 1) {
-            mixed.push(cookPool[i]);
-            i += 1;
+        let ci = 0;
+        let bi = 0;
+        while (mixed.length < sortedFiltered.length && (ci < cookPool.length || bi < buyerPool.length)) {
+          for (let c = 0; c < 4 && ci < cookPool.length; c += 1) {
+            mixed.push(cookPool[ci]);
+            ci += 1;
           }
-          if (j < buyerPool.length) {
-            mixed.push(buyerPool[j]);
-            j += 1;
+          if (bi < buyerPool.length) {
+            mixed.push(buyerPool[bi]);
+            bi += 1;
           }
         }
-        setCooks(mixed);
+        finalList = mixed;
       } else {
-        setCooks(finalList);
+        finalList = sortedFiltered;
       }
+
+      setCooks(finalList);
       setActiveIndex(0);
       setIsLoading(false);
     } catch {
@@ -535,7 +600,8 @@ export function useSwipe(input: SwipeInput): SwipeState {
       like,
       skip,
       refresh,
+      isExhausted,
     }),
-    [isLoading, cooks, activeCook, like, skip, refresh],
+    [isLoading, cooks, activeCook, like, skip, refresh, isExhausted],
   );
 }

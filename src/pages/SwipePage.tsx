@@ -6,22 +6,82 @@ import { HeartIcon, XIcon } from "../components/ui/Icons";
 import { useAuth } from "../hooks/useAuth";
 import { useSwipe } from "../hooks/useSwipe";
 
+const formatNaira = (n: number) => {
+  if (n >= 1000) return `₦${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;
+  return `₦${n}`;
+};
+
+function RangeSlider({
+  label,
+  min,
+  max,
+  step,
+  value,
+  onChange,
+  format,
+}: {
+  label: string;
+  min: number;
+  max: number;
+  step: number;
+  value: number;
+  onChange: (v: number) => void;
+  format?: (v: number) => string;
+}) {
+  const display = format ? format(value) : String(value);
+  const pct = ((value - min) / (max - min)) * 100;
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-sm font-semibold text-slate-700 dark:text-zinc-200">
+          {label}
+        </span>
+        <span className="rounded-full bg-brand-500/15 px-2.5 py-0.5 text-sm font-bold text-brand-700 dark:bg-brand-400/20 dark:text-brand-300">
+          {display}
+        </span>
+      </div>
+      <div className="relative py-2">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-600"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        />
+      </div>
+      <div className="flex justify-between text-[11px] text-slate-400 dark:text-zinc-500">
+        <span>{format ? format(min) : min}</span>
+        <span>{format ? format(max) : max}</span>
+      </div>
+    </div>
+  );
+}
+
 export function SwipePage() {
   const { user, profile } = useAuth();
 
-  const [filterRole, setFilterRole] = useState<"all" | "cook" | "buyer">("all");
+  const [filterRole, setFilterRole] = useState<"all" | "cook" | "buyer">("cook");
   const [maxDistanceKm, setMaxDistanceKm] = useState(40);
-  const [minAge, setMinAge] = useState<number | null>(null);
-  const [maxAge, setMaxAge] = useState<number | null>(null);
-  const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  const [minAge, setMinAge] = useState(18);
+  const [maxAge, setMaxAge] = useState(50);
+  const [maxPrice, setMaxPrice] = useState(99000);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const [touchStartY, setTouchStartY] = useState<number | null>(null);
   const [mouseDownX, setMouseDownX] = useState<number | null>(null);
   const [mouseDownY, setMouseDownY] = useState<number | null>(null);
+  const [swipeAnim, setSwipeAnim] = useState<"like" | "nope" | null>(null);
 
-  const { isLoading, activeCook, like, skip, refresh } = useSwipe({
+  const { isLoading, activeCook, like, skip, refresh, isExhausted } = useSwipe({
     buyerId: user?.id ?? null,
     buyerProfile: profile,
     filterRole,
@@ -30,23 +90,6 @@ export function SwipePage() {
     maxAge,
     maxPrice,
   });
-
-  const subtitle = useMemo(() => {
-    const roleLabel =
-      filterRole === "all"
-        ? "Cooks + people"
-        : filterRole === "cook"
-          ? "Cooks"
-          : "People";
-    return `${roleLabel} • ${maxDistanceKm}km`;
-  }, [filterRole, maxDistanceKm]);
-
-  const applySwipeFromDelta = async (dx: number, dy: number) => {
-    if (Math.abs(dx) < 80) return;
-    if (Math.abs(dx) < Math.abs(dy) * 1.2) return;
-    if (dx > 0) await like();
-    else await skip();
-  };
 
   const activePhotos = useMemo(() => {
     if (!activeCook) return [];
@@ -63,316 +106,427 @@ export function SwipePage() {
 
   useEffect(() => {
     setPhotoIndex(0);
+    setSwipeAnim(null);
   }, [activeCook?.id]);
+
+  const applySwipeFromDelta = async (dx: number, dy: number) => {
+    if (Math.abs(dx) < 80) return;
+    if (Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    if (dx > 0) {
+      setSwipeAnim("like");
+      await new Promise((r) => setTimeout(r, 200));
+      await like();
+    } else {
+      setSwipeAnim("nope");
+      await new Promise((r) => setTimeout(r, 200));
+      await skip();
+    }
+  };
+
+  const handleLike = async () => {
+    setSwipeAnim("like");
+    await new Promise((r) => setTimeout(r, 200));
+    await like();
+  };
+
+  const handleSkip = async () => {
+    setSwipeAnim("nope");
+    await new Promise((r) => setTimeout(r, 200));
+    await skip();
+  };
+
+  const roleLabel =
+    filterRole === "all"
+      ? "Cooks + People"
+      : filterRole === "cook"
+        ? "Cooks"
+        : "People";
 
   return (
     <div className="mx-auto flex min-h-svh max-w-md flex-col px-4 py-6">
       <header className="mb-4 flex items-center justify-between">
         <div>
           <div className="text-sm font-semibold text-brand-700 dark:text-brand-300">
-            LoveFoodMatch
+            Food4Love
           </div>
-          <div className="text-xs text-slate-600 dark:text-zinc-400">
-            {subtitle}
+          <div className="text-xs text-slate-500 dark:text-zinc-400">
+            {roleLabel} · {maxDistanceKm}km · {minAge}–{maxAge}yrs
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Link to="/map" className="block">
-            <Button variant="secondary" className="px-3 py-2">
+            <Button variant="secondary" className="px-3 py-2 text-xs">
               Map
             </Button>
           </Link>
-          <Button
-            variant="secondary"
-            className="px-3 py-2"
+          <button
+            type="button"
             onClick={() => setIsFilterOpen(true)}
+            className="flex items-center gap-1.5 rounded-full border border-black/10 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-white dark:border-white/12 dark:bg-white/8 dark:text-zinc-200 dark:hover:bg-white/12"
           >
+            <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 0 2H2a1 1 0 0 1-1-1zm2 4a1 1 0 0 1 1-1h8a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1zm2 4a1 1 0 0 1 1-1h4a1 1 0 0 1 0 2H6a1 1 0 0 1-1-1z" />
+            </svg>
             Filter
-          </Button>
-          <Button variant="ghost" onClick={() => refresh()}>
-            Refresh
+          </button>
+          <Button variant="ghost" className="px-2 py-2 text-xs" onClick={() => refresh()}>
+            ↻
           </Button>
         </div>
       </header>
 
       <div className="flex-1">
-        <Card className="overflow-hidden p-4">
-          {isLoading ? (
-            <div className="text-sm text-slate-600 dark:text-zinc-300">
-              Loading cooks…
+        {isLoading ? (
+          <div className="flex h-[460px] items-center justify-center">
+            <div className="text-sm text-slate-400 dark:text-zinc-500">Loading…</div>
+          </div>
+        ) : isExhausted ? (
+          <div className="flex h-[460px] flex-col items-center justify-center gap-4 text-center">
+            <div className="text-5xl">🍽️</div>
+            <div className="text-xl font-bold text-slate-900 dark:text-zinc-100">
+              You've seen everyone!
             </div>
-          ) : activeCook ? (
-            <div className="space-y-3">
-              <div className="aspect-[4/5] w-full overflow-hidden rounded-2xl bg-black/5 dark:bg-white/8">
+            <div className="max-w-xs text-sm leading-relaxed text-slate-500 dark:text-zinc-400">
+              We're still growing — more cooks are joining every day. Come back
+              soon or adjust your filters for more profiles.
+            </div>
+            <div className="flex gap-2">
+              <Button variant="secondary" onClick={() => setIsFilterOpen(true)}>
+                Adjust Filters
+              </Button>
+              <Button variant="primary" onClick={() => refresh()}>
+                Check Again
+              </Button>
+            </div>
+          </div>
+        ) : activeCook ? (
+          <div
+            className="relative"
+            style={{
+              transform:
+                swipeAnim === "like"
+                  ? "translateX(60px) rotate(8deg)"
+                  : swipeAnim === "nope"
+                    ? "translateX(-60px) rotate(-8deg)"
+                    : "none",
+              opacity: swipeAnim ? 0 : 1,
+              transition: swipeAnim ? "all 0.2s ease-out" : "none",
+            }}
+          >
+            <div className="relative overflow-hidden rounded-3xl bg-black shadow-2xl">
+              <div
+                className="aspect-[4/5] w-full overflow-hidden"
+                onTouchStart={(e) => {
+                  const t = e.touches[0];
+                  setTouchStartX(t?.clientX ?? null);
+                  setTouchStartY(t?.clientY ?? null);
+                }}
+                onTouchEnd={async (e) => {
+                  const startX = touchStartX;
+                  const startY = touchStartY;
+                  setTouchStartX(null);
+                  setTouchStartY(null);
+                  const t = e.changedTouches[0];
+                  if (startX == null || startY == null || !t) return;
+                  await applySwipeFromDelta(
+                    t.clientX - startX,
+                    t.clientY - startY,
+                  );
+                }}
+                onMouseDown={(e) => {
+                  setMouseDownX(e.clientX);
+                  setMouseDownY(e.clientY);
+                }}
+                onMouseUp={async (e) => {
+                  const startX = mouseDownX;
+                  const startY = mouseDownY;
+                  setMouseDownX(null);
+                  setMouseDownY(null);
+                  if (startX == null || startY == null) return;
+                  await applySwipeFromDelta(
+                    e.clientX - startX,
+                    e.clientY - startY,
+                  );
+                }}
+              >
                 {activePhotos[photoIndex] ? (
                   <img
                     src={activePhotos[photoIndex]}
                     alt=""
-                    className="h-full w-full object-cover"
+                    className="h-full w-full select-none object-cover"
+                    draggable={false}
                     loading="lazy"
-                    onClick={() => {
-                      if (activePhotos.length <= 1) return;
-                      setPhotoIndex((i) => (i + 1) % activePhotos.length);
-                    }}
-                    onTouchStart={(e) => {
-                      const t = e.touches[0];
-                      setTouchStartX(t?.clientX ?? null);
-                      setTouchStartY(t?.clientY ?? null);
-                    }}
-                    onTouchEnd={async (e) => {
-                      const startX = touchStartX;
-                      const startY = touchStartY;
-                      setTouchStartX(null);
-                      setTouchStartY(null);
-                      const t = e.changedTouches[0];
-                      if (startX == null || startY == null || !t) return;
-                      await applySwipeFromDelta(
-                        t.clientX - startX,
-                        t.clientY - startY,
-                      );
-                    }}
-                    onMouseDown={(e) => {
-                      setMouseDownX(e.clientX);
-                      setMouseDownY(e.clientY);
-                    }}
-                    onMouseUp={async (e) => {
-                      const startX = mouseDownX;
-                      const startY = mouseDownY;
-                      setMouseDownX(null);
-                      setMouseDownY(null);
-                      if (startX == null || startY == null) return;
-                      await applySwipeFromDelta(
-                        e.clientX - startX,
-                        e.clientY - startY,
-                      );
-                    }}
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-sm text-slate-600 dark:text-zinc-300">
+                  <div className="flex h-full w-full items-center justify-center bg-slate-900 text-sm text-slate-400">
                     No photo yet
                   </div>
                 )}
-              </div>
-              {activePhotos.length > 1 ? (
-                <div className="flex items-center justify-center gap-1">
-                  {activePhotos.map((_, idx) => (
-                    <div
-                      key={idx}
-                      className={[
-                        "h-1.5 w-1.5 rounded-full",
-                        idx === photoIndex
-                          ? "bg-brand-500"
-                          : "bg-black/15 dark:bg-white/15",
-                      ].join(" ")}
-                    />
-                  ))}
-                </div>
-              ) : null}
-              <div>
-                <div className="text-xl font-semibold text-slate-900 dark:text-zinc-100">
-                  {activeCook.name}
-                </div>
-                <div className="text-sm text-slate-600 dark:text-zinc-400">
-                  {activeCook.role === "cook" ? "Cook" : "Person"}
-                  {activeCook.age != null ? ` • ${activeCook.age}` : ""}
-                  {activeCook.role === "cook" &&
-                  activeCook.price_min != null &&
-                  activeCook.price_max != null
-                    ? ` • ₦${activeCook.price_min}–₦${activeCook.price_max}`
-                    : ""}
-                </div>
-                {activeCook.bio ? (
-                  <div className="mt-2 text-sm leading-relaxed text-slate-700 dark:text-zinc-300">
-                    {activeCook.bio}
+
+                {activePhotos.length > 1 && (
+                  <div className="absolute left-0 right-0 top-2 flex gap-1 px-2">
+                    {activePhotos.map((_, idx) => (
+                      <div
+                        key={idx}
+                        className={[
+                          "h-0.5 flex-1 rounded-full transition-all",
+                          idx === photoIndex
+                            ? "bg-white"
+                            : "bg-white/30",
+                        ].join(" ")}
+                      />
+                    ))}
                   </div>
-                ) : null}
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {(activeCook.cuisines ?? []).slice(0, 4).map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-full border border-black/10 bg-white/60 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-white/12 dark:bg-white/6 dark:text-zinc-200"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                  {(activeCook.interests ?? []).slice(0, 3).map((t) => (
-                    <span
-                      key={t}
-                      className="rounded-full border border-punch-500/25 bg-punch-500/10 px-3 py-1 text-xs font-semibold text-slate-700 dark:text-zinc-200"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <div className="text-sm text-slate-600 dark:text-zinc-300">
-                You're all caught up for now.
-              </div>
-              <div className="text-xs text-slate-500 dark:text-zinc-500">
-                Try again later for more profiles.
-              </div>
-            </div>
-          )}
-        </Card>
-      </div>
+                )}
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <Button
-          variant="secondary"
-          className="h-14 text-base"
-          onClick={() => skip()}
-          disabled={!activeCook || isLoading}
-          leftIcon={<XIcon className="h-5 w-5" />}
-        >
-          Pass
-        </Button>
-        <Button
-          variant="primary"
-          className="h-14 text-base"
-          onClick={() => like()}
-          disabled={!activeCook || isLoading}
-          leftIcon={<HeartIcon className="h-5 w-5" />}
-        >
-          Like
-        </Button>
-      </div>
-
-      {isFilterOpen ? (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30 p-4 backdrop-blur-sm">
-          <Card className="w-full max-w-md p-4">
-            <div className="mb-3 flex items-start justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold text-slate-900 dark:text-zinc-100">
-                  Filters
-                </div>
-                <div className="text-xs text-slate-600 dark:text-zinc-400">
-                  Keep it sweet, keep it close.
-                </div>
-              </div>
-              <Button variant="ghost" onClick={() => setIsFilterOpen(false)}>
-                Done
-              </Button>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <div className="mb-2 text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                  Show
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {(
-                    [
-                      { v: "cook", label: "Cooks" },
-                      { v: "buyer", label: "People" },
-                      { v: "all", label: "Both" },
-                    ] as const
-                  ).map((opt) => (
+                {activePhotos.length > 1 && (
+                  <>
                     <button
-                      key={opt.v}
                       type="button"
-                      onClick={() => setFilterRole(opt.v)}
-                      className={[
-                        "rounded-2xl border px-3 py-3 text-sm font-semibold transition",
-                        filterRole === opt.v
-                          ? "border-brand-500/30 bg-brand-500/15 text-slate-900 dark:text-zinc-100"
-                          : "border-black/10 bg-white/70 text-slate-700 hover:bg-white/90 dark:border-white/12 dark:bg-white/6 dark:text-zinc-200 dark:hover:bg-white/10",
-                      ].join(" ")}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+                      className="absolute left-0 top-0 h-full w-1/2"
+                      onClick={() =>
+                        setPhotoIndex((i) =>
+                          i === 0 ? activePhotos.length - 1 : i - 1,
+                        )
+                      }
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-0 top-0 h-full w-1/2"
+                      onClick={() =>
+                        setPhotoIndex((i) => (i + 1) % activePhotos.length)
+                      }
+                    />
+                  </>
+                )}
+
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent px-4 pb-5 pt-16">
+                  <div className="flex items-end justify-between gap-2">
+                    <div>
+                      <div className="text-2xl font-bold text-white">
+                        {activeCook.name}
+                        {activeCook.age != null ? (
+                          <span className="ml-2 text-xl font-semibold opacity-90">
+                            {activeCook.age}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="mt-0.5 text-sm font-medium text-white/80">
+                        {activeCook.role === "cook" ? "Cook" : "Foodie"}
+                        {activeCook.specialty ? ` · ${activeCook.specialty}` : ""}
+                        {activeCook.role === "cook" &&
+                        activeCook.price_min != null &&
+                        activeCook.price_max != null
+                          ? ` · ${formatNaira(activeCook.price_min)}–${formatNaira(activeCook.price_max)}`
+                          : ""}
+                      </div>
+                      {activeCook.bio ? (
+                        <div className="mt-1.5 line-clamp-2 text-sm leading-snug text-white/70">
+                          {activeCook.bio}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  {((activeCook.cuisines ?? []).length > 0 ||
+                    (activeCook.interests ?? []).length > 0) && (
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {(activeCook.cuisines ?? []).slice(0, 2).map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                      {(activeCook.interests ?? []).slice(0, 2).map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-full border border-white/20 bg-white/10 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-sm"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
+            </div>
+          </div>
+        ) : null}
+      </div>
 
-              <label className="block">
-                <div className="mb-1 text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                  Distance: {maxDistanceKm}km
+      <div className="mt-6 flex items-center justify-center gap-5">
+        <button
+          type="button"
+          onClick={handleSkip}
+          disabled={!activeCook || isLoading || isExhausted}
+          className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-red-400/40 bg-white shadow-lg transition active:scale-95 disabled:opacity-30 hover:border-red-400 dark:bg-slate-900"
+        >
+          <XIcon className="h-7 w-7 text-red-400" />
+        </button>
+
+        <button
+          type="button"
+          onClick={handleLike}
+          disabled={!activeCook || isLoading || isExhausted}
+          className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 shadow-xl shadow-brand-500/30 transition active:scale-95 disabled:opacity-30 hover:shadow-brand-500/50"
+        >
+          <HeartIcon className="h-9 w-9 text-white" />
+        </button>
+
+        <button
+          type="button"
+          disabled
+          className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-yellow-400/40 bg-white shadow-lg opacity-30 dark:bg-slate-900"
+        >
+          <svg className="h-6 w-6 text-yellow-500" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
+          </svg>
+        </button>
+      </div>
+
+      {isFilterOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsFilterOpen(false);
+          }}
+        >
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div className="relative w-full max-w-md overflow-hidden rounded-t-3xl border-t border-black/10 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-950">
+            <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-black/10 dark:bg-white/10" />
+
+            <div className="px-5 pb-8 pt-4">
+              <div className="mb-5 flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-bold text-slate-900 dark:text-zinc-100">
+                    Discovery Settings
+                  </div>
+                  <div className="text-xs text-slate-500 dark:text-zinc-400">
+                    Swipe smarter, eat better
+                  </div>
                 </div>
-                <input
-                  type="range"
+                <button
+                  type="button"
+                  onClick={() => setIsFilterOpen(false)}
+                  className="rounded-full bg-black/6 p-2 text-slate-600 hover:bg-black/10 dark:bg-white/8 dark:text-zinc-300 dark:hover:bg-white/12"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M4.47 4.47a.75.75 0 011.06 0L8 6.94l2.47-2.47a.75.75 0 111.06 1.06L9.06 8l2.47 2.47a.75.75 0 11-1.06 1.06L8 9.06l-2.47 2.47a.75.75 0 01-1.06-1.06L6.94 8 4.47 5.53a.75.75 0 010-1.06z" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <div className="mb-3 text-sm font-bold text-slate-700 dark:text-zinc-200">
+                    Show Me
+                  </div>
+                  <div className="flex rounded-2xl border border-black/8 bg-black/4 p-1 dark:border-white/8 dark:bg-white/4">
+                    {(
+                      [
+                        { v: "cook", label: "Cooks" },
+                        { v: "all", label: "Everyone" },
+                        { v: "buyer", label: "Buyers" },
+                      ] as const
+                    ).map((opt) => (
+                      <button
+                        key={opt.v}
+                        type="button"
+                        onClick={() => setFilterRole(opt.v)}
+                        className={[
+                          "flex-1 rounded-xl py-2.5 text-sm font-semibold transition",
+                          filterRole === opt.v
+                            ? "bg-white text-slate-900 shadow-sm dark:bg-slate-800 dark:text-zinc-100"
+                            : "text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200",
+                        ].join(" ")}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <RangeSlider
+                  label="Maximum Distance"
                   min={1}
-                  max={60}
+                  max={40}
                   step={1}
                   value={maxDistanceKm}
-                  onChange={(e) => setMaxDistanceKm(Number(e.target.value))}
-                  className="w-full"
+                  onChange={setMaxDistanceKm}
+                  format={(v) => `${v} km`}
                 />
-              </label>
 
-              <div className="grid grid-cols-2 gap-3">
-                <label className="block">
-                  <div className="mb-1 text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                    Min age: {minAge ?? 18}
+                <div>
+                  <div className="mb-2 text-sm font-bold text-slate-700 dark:text-zinc-200">
+                    Age Range
                   </div>
-                  <input
-                    type="range"
-                    min={18}
-                    max={60}
-                    step={1}
-                    value={minAge ?? 18}
-                    onChange={(e) => {
-                      const next = Number(e.target.value);
-                      setMinAge(next);
-                      if (maxAge != null && next > maxAge) setMaxAge(next);
-                    }}
-                    className="w-full"
-                  />
-                </label>
-                <label className="block">
-                  <div className="mb-1 text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                    Max age: {maxAge ?? 60}
+                  <div className="grid grid-cols-2 gap-4">
+                    <RangeSlider
+                      label="Min"
+                      min={18}
+                      max={60}
+                      step={1}
+                      value={minAge}
+                      onChange={(v) => {
+                        setMinAge(v);
+                        if (v > maxAge) setMaxAge(v);
+                      }}
+                      format={(v) => `${v}`}
+                    />
+                    <RangeSlider
+                      label="Max"
+                      min={18}
+                      max={60}
+                      step={1}
+                      value={maxAge}
+                      onChange={(v) => {
+                        setMaxAge(v);
+                        if (v < minAge) setMinAge(v);
+                      }}
+                      format={(v) => `${v}`}
+                    />
                   </div>
-                  <input
-                    type="range"
-                    min={18}
-                    max={60}
-                    step={1}
-                    value={maxAge ?? 60}
-                    onChange={(e) => {
-                      const next = Number(e.target.value);
-                      setMaxAge(next);
-                      if (minAge != null && next < minAge) setMinAge(next);
-                    }}
-                    className="w-full"
-                  />
-                </label>
-              </div>
-
-              <label className="block">
-                <div className="mb-1 text-xs font-semibold text-slate-700 dark:text-zinc-300">
-                  Max price: {maxPrice ?? 99000}₦
                 </div>
-                <input
-                  type="range"
+
+                <RangeSlider
+                  label="Max Budget"
                   min={1000}
                   max={99000}
                   step={500}
-                  value={maxPrice ?? 99000}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full"
+                  value={maxPrice}
+                  onChange={setMaxPrice}
+                  format={formatNaira}
                 />
-              </label>
-              <div className="flex justify-end">
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setFilterRole("all");
-                    setMaxDistanceKm(40);
-                    setMinAge(null);
-                    setMaxAge(null);
-                    setMaxPrice(null);
-                  }}
-                >
-                  Reset
-                </Button>
+
+                <div className="flex gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilterRole("cook");
+                      setMaxDistanceKm(40);
+                      setMinAge(18);
+                      setMaxAge(50);
+                      setMaxPrice(99000);
+                    }}
+                    className="flex-1 rounded-2xl border border-black/10 py-3.5 text-sm font-semibold text-slate-600 transition hover:bg-black/4 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/6"
+                  >
+                    Reset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsFilterOpen(false)}
+                    className="flex-1 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/25 transition hover:from-brand-600 hover:to-brand-700"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
               </div>
             </div>
-          </Card>
+          </div>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

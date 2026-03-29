@@ -20,186 +20,336 @@ const json = (status: number, body: unknown) =>
 
 const rand = () => crypto.randomUUID().replace(/-/g, "").slice(0, 12);
 
-const facePhotos = {
-  women: [
-    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1524503033411-f7a2fe8c7c6f?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1520975693411-b00b49b9d4fa?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1524503033411-f7a2fe8c7c6f?auto=format&fit=crop&w=1200&q=80",
-  ],
-  men: [
-    "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1520975916090-3105956dac38?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1552058544-f2b08422138a?auto=format&fit=crop&w=1200&q=80",
-    "https://images.unsplash.com/photo-1520975916090-3105956dac38?auto=format&fit=crop&w=1200&q=80",
-  ],
-};
+const womenPhotos = [
+  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1496440737103-cd596325d314?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1551069613-1904dbdcda11?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1546961342-ea5f62d5a27b?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1542596768-5d1d21f1cf98?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=1200&q=80",
+];
 
-const foodPhotos: Record<string, string> = {
-  "Jollof Rice":
-    "https://images.unsplash.com/photo-1604908176997-125f25cc500c?auto=format&fit=crop&w=1200&q=80",
-  "Fried Plantain":
-    "https://images.unsplash.com/photo-1604908554027-30fbd138c4b6?auto=format&fit=crop&w=1200&q=80",
-  Chicken:
-    "https://images.unsplash.com/photo-1604908177064-8b7f52c16e34?auto=format&fit=crop&w=1200&q=80",
-  Suya: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80",
-  "Yaji spice":
-    "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80",
-  "Onions + tomatoes":
-    "https://images.unsplash.com/photo-1566843972142-a0fcb1d3d7e8?auto=format&fit=crop&w=1200&q=80",
-  "Egusi Soup":
-    "https://images.unsplash.com/photo-1604908177171-8cd9bfb4d2f3?auto=format&fit=crop&w=1200&q=80",
-  "Pounded Yam":
-    "https://images.unsplash.com/photo-1604908177094-4f9b2f1f5b55?auto=format&fit=crop&w=1200&q=80",
-  Semo: "https://images.unsplash.com/photo-1604908177094-4f9b2f1f5b55?auto=format&fit=crop&w=1200&q=80",
-  "Ofada Rice":
-    "https://images.unsplash.com/photo-1604908176997-125f25cc500c?auto=format&fit=crop&w=1200&q=80",
-  "Ayamase stew":
-    "https://images.unsplash.com/photo-1604908177148-1d9a9d37b04b?auto=format&fit=crop&w=1200&q=80",
-  "Goat Pepper Soup":
-    "https://images.unsplash.com/photo-1604908177214-6fbc6f2c3dfd?auto=format&fit=crop&w=1200&q=80",
-  "Catfish Pepper Soup":
-    "https://images.unsplash.com/photo-1604908177214-6fbc6f2c3dfd?auto=format&fit=crop&w=1200&q=80",
-  "Peppered Ponmo":
-    "https://images.unsplash.com/photo-1604908177186-8b6b15bf95df?auto=format&fit=crop&w=1200&q=80",
-  Nkwobi:
-    "https://images.unsplash.com/photo-1604908177186-8b6b15bf95df?auto=format&fit=crop&w=1200&q=80",
-  "Peppered Snail":
-    "https://images.unsplash.com/photo-1604908177186-8b6b15bf95df?auto=format&fit=crop&w=1200&q=80",
-  "Palm wine":
-    "https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=1200&q=80",
-  "Efo Riro":
-    "https://images.unsplash.com/photo-1604908177148-1d9a9d37b04b?auto=format&fit=crop&w=1200&q=80",
-  "Assorted meat":
-    "https://images.unsplash.com/photo-1604908177064-8b7f52c16e34?auto=format&fit=crop&w=1200&q=80",
-  "Moi Moi":
-    "https://images.unsplash.com/photo-1604908177126-d3a7a6c6901a?auto=format&fit=crop&w=1200&q=80",
-  Pap: "https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=1200&q=80",
-  Akara:
-    "https://images.unsplash.com/photo-1604908177111-104b7a3d2e21?auto=format&fit=crop&w=1200&q=80",
-  "Fried Rice":
-    "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80",
-};
+const menPhotos = [
+  "https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1552058544-f2b08422138a?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1542178243-bc20204b769f?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&w=1200&q=80",
+];
 
-const pickGallery = (avatar: string | null, pool: string[]) => {
-  if (!avatar) return null;
-  const out: string[] = [avatar];
-  for (const u of pool) {
-    if (out.length >= 5) break;
-    if (!out.includes(u)) out.push(u);
-  }
-  return out.slice(0, 5);
-};
+const foodPhotoPool = [
+  "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1604908176997-125f25cc500c?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80",
+];
+
+const nigerianCities = [
+  { lat: 6.4541, lng: 3.3947 },
+  { lat: 9.0765, lng: 7.3986 },
+  { lat: 4.8156, lng: 7.0498 },
+  { lat: 7.3775, lng: 3.9470 },
+  { lat: 12.0022, lng: 8.5920 },
+];
 
 const cookTemplates = [
   {
     name: "Chioma",
+    bio: "If you love smoky jollof, soft plantain, and proper stew — you're in the right place.",
     specialty: "Jollof Rice",
-    cuisines: ["Nigerian"],
-    interests: ["Home cooking", "Spicy"],
+    cuisines: ["Nigerian", "West African"],
+    interests: ["Home cooking", "Spicy", "Street food"],
+    price_min: 2500,
+    price_max: 7000,
+    gender: "female" as const,
   },
   {
     name: "Tunde",
+    bio: "Proper suya, hot yaji, and cold drinks. Come chop.",
     specialty: "Suya",
-    cuisines: ["Nigerian"],
-    interests: ["Street food", "BBQ"],
+    cuisines: ["Nigerian", "Street Food"],
+    interests: ["BBQ", "Spicy", "Late night"],
+    price_min: 2000,
+    price_max: 6000,
+    gender: "male" as const,
   },
   {
     name: "Amina",
+    bio: "Egusi that hits, pounded yam that stretches, and stew that behaves. Fully homemade.",
     specialty: "Egusi Soup",
-    cuisines: ["Nigerian"],
-    interests: ["Home cooking", "Healthy"],
-  },
-  {
-    name: "Kelechi",
-    specialty: "Ofada Rice",
-    cuisines: ["Nigerian"],
-    interests: ["Home cooking", "Spicy"],
-  },
-  {
-    name: "Zainab",
-    specialty: "Pepper Soup",
-    cuisines: ["Nigerian"],
-    interests: ["Spicy", "Seafood"],
-  },
-  {
-    name: "Ifeanyi",
-    specialty: "Nkwobi",
-    cuisines: ["Nigerian"],
-    interests: ["Street food", "Spicy"],
+    cuisines: ["Nigerian", "Igbo cuisine"],
+    interests: ["Home cooking", "Healthy", "Traditional"],
+    price_min: 3500,
+    price_max: 9000,
+    gender: "female" as const,
   },
   {
     name: "Sade",
-    specialty: "Efo Riro + Pounded Yam",
-    cuisines: ["Nigerian"],
-    interests: ["Fine dining", "Home cooking"],
+    bio: "Efo riro with assorted meat. If you're serious, you'll lick the plate.",
+    specialty: "Efo Riro",
+    cuisines: ["Nigerian", "Yoruba cuisine"],
+    interests: ["Home cooking", "Fine dining", "Spicy"],
+    price_min: 5000,
+    price_max: 15000,
+    gender: "female" as const,
+  },
+  {
+    name: "Emeka",
+    bio: "Ofe onugbu, oha soup, and the best ofe akwu you'll ever taste in Lagos.",
+    specialty: "Ofe Onugbu",
+    cuisines: ["Nigerian", "Igbo cuisine"],
+    interests: ["Traditional", "Home cooking", "Soups"],
+    price_min: 4000,
+    price_max: 12000,
+    gender: "male" as const,
   },
   {
     name: "Bola",
+    bio: "Soft moi moi, akara that's not oily, and pap that's smooth. Brunch done right.",
     specialty: "Moi Moi",
     cuisines: ["Nigerian"],
-    interests: ["Healthy", "Home cooking"],
+    interests: ["Brunch", "Healthy", "Home cooking"],
+    price_min: 2000,
+    price_max: 5000,
+    gender: "female" as const,
   },
   {
-    name: "Femi",
-    specialty: "Fried Rice",
-    cuisines: ["Nigerian"],
-    interests: ["Brunch", "Home cooking"],
+    name: "Adaeze",
+    bio: "Catfish pepper soup to cure anything — heartbreak, cold, or just hunger.",
+    specialty: "Catfish Pepper Soup",
+    cuisines: ["Nigerian", "River states"],
+    interests: ["Comfort food", "Spicy", "Late night"],
+    price_min: 3000,
+    price_max: 8500,
+    gender: "female" as const,
   },
   {
-    name: "Ada",
-    specialty: "Akara + Pap",
+    name: "Segun",
+    bio: "Ofada rice and ayamase stew the way your grandma made it — but better.",
+    specialty: "Ofada Rice",
+    cuisines: ["Nigerian", "Yoruba cuisine"],
+    interests: ["Traditional", "Home cooking", "Unique"],
+    price_min: 3500,
+    price_max: 10000,
+    gender: "male" as const,
+  },
+  {
+    name: "Fatima",
+    bio: "Tuwo shinkafa, miyan kuka, dan wake — I bring the North to your doorstep.",
+    specialty: "Northern Nigerian",
+    cuisines: ["Nigerian", "Hausa cuisine"],
+    interests: ["Traditional", "Home cooking", "Healthy"],
+    price_min: 2500,
+    price_max: 7500,
+    gender: "female" as const,
+  },
+  {
+    name: "Chukwudi",
+    bio: "Nkwobi, peppered ponmo, asun — the full owambe experience delivered private.",
+    specialty: "Nkwobi",
+    cuisines: ["Nigerian", "Igbo cuisine"],
+    interests: ["Party food", "Spicy", "BBQ"],
+    price_min: 4500,
+    price_max: 14000,
+    gender: "male" as const,
+  },
+  {
+    name: "Kemi",
+    bio: "Continental with a Nigerian twist. Pasta, steak, fried rice that actually slaps.",
+    specialty: "Nigerian Continental",
+    cuisines: ["Nigerian", "Continental"],
+    interests: ["Fine dining", "Creative", "Fusion"],
+    price_min: 6000,
+    price_max: 20000,
+    gender: "female" as const,
+  },
+  {
+    name: "Biodun",
+    bio: "Banga soup, starch, and fresh periwinkle. Delta boy, Lagos based.",
+    specialty: "Banga Soup",
+    cuisines: ["Nigerian", "Delta cuisine"],
+    interests: ["Traditional", "Seafood", "Home cooking"],
+    price_min: 3500,
+    price_max: 9000,
+    gender: "male" as const,
+  },
+  {
+    name: "Ngozi",
+    bio: "Ofe akwu, ofe owerri, abacha — everything from scratch, no shortcuts.",
+    specialty: "Ofe Akwu",
+    cuisines: ["Nigerian", "Igbo cuisine"],
+    interests: ["Traditional", "Home cooking", "Authentic"],
+    price_min: 3000,
+    price_max: 8000,
+    gender: "female" as const,
+  },
+  {
+    name: "Yakubu",
+    bio: "Kilishi, kuli kuli, masa — Northern flavours, Lagos price.",
+    specialty: "Kilishi",
+    cuisines: ["Nigerian", "Hausa cuisine"],
+    interests: ["Snacks", "Street food", "BBQ"],
+    price_min: 2000,
+    price_max: 5500,
+    gender: "male" as const,
+  },
+  {
+    name: "Toyin",
+    bio: "Small chops queen. Puff puff, spring rolls, samosa, asun — your party sorted.",
+    specialty: "Small Chops",
     cuisines: ["Nigerian"],
-    interests: ["Brunch", "Street food"],
+    interests: ["Party food", "Snacks", "Events"],
+    price_min: 3000,
+    price_max: 9000,
+    gender: "female" as const,
+  },
+  {
+    name: "Eze",
+    bio: "Ukwa, ofe nmanu, achicha — traditional Igbo food for those who know.",
+    specialty: "Ukwa",
+    cuisines: ["Nigerian", "Igbo cuisine"],
+    interests: ["Traditional", "Rare dishes", "Authentic"],
+    price_min: 4000,
+    price_max: 11000,
+    gender: "male" as const,
   },
 ];
 
 const buyerTemplates = [
-  { name: "Ngozi", interests: ["Desserts", "Brunch"], cuisines: ["Nigerian"] },
-  { name: "Uche", interests: ["Street food", "Spicy"], cuisines: ["Nigerian"] },
-  { name: "Chinedu", interests: ["BBQ", "Coffee"], cuisines: ["Nigerian"] },
   {
-    name: "Fatima",
-    interests: ["Healthy", "Fine dining"],
-    cuisines: ["Nigerian"],
+    name: "Zara",
+    bio: "I'm here for good vibes and better food. Swipe me right for a home-cooked miracle.",
+    cuisines: ["Nigerian", "Continental"],
+    interests: ["Brunch", "Coffee", "Desserts"],
+    gender: "female" as const,
   },
   {
-    name: "Emeka",
-    interests: ["Home cooking", "Spicy"],
+    name: "Chinedu",
+    bio: "If the stew no pepper, we fit add am. I'm a serious food person.",
     cuisines: ["Nigerian"],
+    interests: ["Street food", "Spicy", "BBQ"],
+    gender: "male" as const,
   },
-  { name: "Hauwa", interests: ["Brunch", "Coffee"], cuisines: ["Nigerian"] },
-  { name: "Bisi", interests: ["Desserts", "Coffee"], cuisines: ["Nigerian"] },
-  { name: "Yusuf", interests: ["Street food", "BBQ"], cuisines: ["Nigerian"] },
+  {
+    name: "Ifeoma",
+    bio: "Looking for a cook who can do swallow and soup right. Show me your egusi.",
+    cuisines: ["Nigerian", "Igbo cuisine"],
+    interests: ["Home cooking", "Traditional", "Soups"],
+    gender: "female" as const,
+  },
+  {
+    name: "Damilola",
+    bio: "Busy Lagos girl who needs someone to cook proper food at home. Help me.",
+    cuisines: ["Nigerian"],
+    interests: ["Home cooking", "Healthy", "Quick meals"],
+    gender: "female" as const,
+  },
+  {
+    name: "Tolu",
+    bio: "I judge cooks by their jollof. Pass the test and we're talking.",
+    cuisines: ["Nigerian", "West African"],
+    interests: ["Spicy", "Comfort food", "Street food"],
+    gender: "male" as const,
+  },
+  {
+    name: "Blessing",
+    bio: "Continental and Nigerian — I eat everything. Just make it good.",
+    cuisines: ["Nigerian", "Continental"],
+    interests: ["Fine dining", "Creative", "Fusion"],
+    gender: "female" as const,
+  },
+  {
+    name: "Obinna",
+    bio: "I need a cook who respects pepper soup and pounded yam. That's all.",
+    cuisines: ["Nigerian", "Igbo cuisine"],
+    interests: ["Traditional", "Soups", "Comfort food"],
+    gender: "male" as const,
+  },
+  {
+    name: "Hauwa",
+    bio: "Northern girl in Lagos missing proper tuwo and miyan. Come save me.",
+    cuisines: ["Nigerian", "Hausa cuisine"],
+    interests: ["Traditional", "Home cooking", "Authentic"],
+    gender: "female" as const,
+  },
+  {
+    name: "Ayo",
+    bio: "Party planner who needs small chops and full catering. Let's talk business.",
+    cuisines: ["Nigerian"],
+    interests: ["Party food", "Events", "Snacks"],
+    gender: "male" as const,
+  },
+  {
+    name: "Chidinma",
+    bio: "Work from home, eat from home. Need a cook 3x per week minimum.",
+    cuisines: ["Nigerian"],
+    interests: ["Healthy", "Quick meals", "Meal prep"],
+    gender: "female" as const,
+  },
+  {
+    name: "Femi",
+    bio: "I appreciate good food the way people appreciate art. Impress me.",
+    cuisines: ["Nigerian", "Continental"],
+    interests: ["Fine dining", "Creative", "Exotic"],
+    gender: "male" as const,
+  },
+  {
+    name: "Adaora",
+    bio: "Grew up on real Igbo food and I refuse to settle for less now.",
+    cuisines: ["Nigerian", "Igbo cuisine"],
+    interests: ["Traditional", "Authentic", "Home cooking"],
+    gender: "female" as const,
+  },
+  {
+    name: "Kunle",
+    bio: "Food is love. If you cook with heart, I'll eat with joy. Simple math.",
+    cuisines: ["Nigerian", "Yoruba cuisine"],
+    interests: ["Spicy", "Street food", "BBQ"],
+    gender: "male" as const,
+  },
+  {
+    name: "Nneka",
+    bio: "Vegetarian-leaning but I'll eat fish. Cook me something beautiful.",
+    cuisines: ["Nigerian"],
+    interests: ["Healthy", "Fusion", "Creative"],
+    gender: "female" as const,
+  },
+  {
+    name: "Babatunde",
+    bio: "I want proper amala and gbegiri. Everything else is bonus.",
+    cuisines: ["Nigerian", "Yoruba cuisine"],
+    interests: ["Traditional", "Soups", "Comfort food"],
+    gender: "male" as const,
+  },
+  {
+    name: "Chiamaka",
+    bio: "Health-conscious but won't say no to Nigerian food done right.",
+    cuisines: ["Nigerian"],
+    interests: ["Healthy", "Home cooking", "Traditional"],
+    gender: "female" as const,
+  },
 ];
-
-const cookMenus: Record<string, string[]> = {
-  "Jollof Rice": ["Jollof Rice", "Fried Plantain", "Chicken"],
-  Suya: ["Suya", "Yaji spice", "Onions + tomatoes"],
-  "Egusi Soup": ["Egusi Soup", "Pounded Yam", "Semo"],
-  "Ofada Rice": ["Ofada Rice", "Ayamase stew", "Fried Plantain"],
-  "Pepper Soup": ["Goat Pepper Soup", "Catfish Pepper Soup", "Peppered Ponmo"],
-  Nkwobi: ["Nkwobi", "Peppered Snail", "Palm wine"],
-  "Efo Riro + Pounded Yam": ["Efo Riro", "Pounded Yam", "Assorted meat"],
-  "Moi Moi": ["Moi Moi", "Pap", "Akara"],
-  "Fried Rice": ["Fried Rice", "Jollof Rice", "Chicken"],
-  "Akara + Pap": ["Akara", "Pap", "Moi Moi"],
-};
-
-const pickPriceRange = (i: number) => {
-  const tiers = [
-    [2000, 3500],
-    [3000, 5000],
-    [4000, 6500],
-    [6000, 9000],
-    [8000, 12000],
-    [10000, 15000],
-  ] as const;
-  const t = tiers[i % tiers.length];
-  return { min: t[0], max: t[1] };
-};
 
 const serve = (
   globalThis as unknown as {
@@ -266,10 +416,11 @@ serve(async (req) => {
 
   for (let i = 0; i < cooks; i++) {
     const t = cookTemplates[i % cookTemplates.length];
-    const price = pickPriceRange(i);
     const token = rand();
-    const email = `bot.${t.name.toLowerCase()}.${token}@example.com`;
+    const safeName = t.name.toLowerCase().replace(/\s+/g, "");
+    const email = `bot.cook.${safeName}.${token}@example.com`;
     const password = rand() + "A1!";
+
     const { data, error } = await admin.auth.admin.createUser({
       email,
       password,
@@ -278,56 +429,59 @@ serve(async (req) => {
     });
     if (error || !data.user) continue;
     const u = data.user;
+
+    const photoPool = t.gender === "female" ? womenPhotos : menPhotos;
+    const avatarIdx = i % photoPool.length;
+    const avatarUrl = photoPool[avatarIdx];
+    const extraFacePhoto = photoPool[(avatarIdx + 4) % photoPool.length];
+    const foodPhoto1 = foodPhotoPool[i % foodPhotoPool.length];
+    const foodPhoto2 = foodPhotoPool[(i + 5) % foodPhotoPool.length];
+    const photos = [extraFacePhoto, foodPhoto1, foodPhoto2];
+
+    const loc = nigerianCities[i % nigerianCities.length];
+    const latJitter = (Math.random() - 0.5) * 0.15;
+    const lngJitter = (Math.random() - 0.5) * 0.15;
+
     await admin.from("profiles").upsert({
       id: u.id,
       role: "cook",
       name: t.name,
       nickname: t.name,
-      looking_for: "Food dates and loyal customers",
-      age: 24 + (i % 10),
-      avatar_url: null,
+      looking_for: "Clients who appreciate real food",
+      age: 21 + (i % 14),
+      avatar_url: avatarUrl,
       phone: null,
-      bio: `I make the best ${t.specialty} in town. Come hungry.`,
+      bio: t.bio,
       cuisines: t.cuisines,
       interests: t.interests,
       favorite_foods: [t.specialty],
-      photos: null,
+      photos,
       specialty: t.specialty,
-      price_min: price.min,
-      price_max: price.max,
+      price_min: t.price_min,
+      price_max: t.price_max,
       is_bot: true,
       bot_persona:
-        "Nigerian cook bot. Friendly, confident, short replies. Suggests a simple order or a date plan around food. Uses Nigerian expressions lightly.",
+        "Nigerian cook bot. Confident about their food. Warm but professional. Short replies. Offers to cook soon.",
       is_admin: false,
       onboarding_completed: true,
       kyc_status: "verified",
-      kyc_full_name: null,
+      kyc_full_name: t.name,
       kyc_country: "Nigeria",
       kyc_selfie: null,
       kyc_id_doc: null,
-      lat: null,
-      lng: null,
+      lat: loc.lat + latJitter,
+      lng: loc.lng + lngJitter,
     });
-
-    const menu = cookMenus[t.specialty] ?? [
-      t.specialty,
-      "Fried Plantain",
-      "Chicken",
-    ];
-    const toInsert = menu.slice(0, 3).map((name) => ({
-      cook_id: u.id,
-      name,
-      image_url: null,
-    }));
-    await admin.from("dishes").insert(toInsert);
     created.push({ id: u.id, email, role: "cook" });
   }
 
   for (let i = 0; i < buyers; i++) {
     const t = buyerTemplates[i % buyerTemplates.length];
     const token = rand();
-    const email = `bot.${t.name.toLowerCase()}.${token}@example.com`;
+    const safeName = t.name.toLowerCase().replace(/\s+/g, "");
+    const email = `bot.buyer.${safeName}.${token}@example.com`;
     const password = rand() + "A1!";
+
     const { data, error } = await admin.auth.admin.createUser({
       email,
       password,
@@ -336,20 +490,30 @@ serve(async (req) => {
     });
     if (error || !data.user) continue;
     const u = data.user;
+
+    const photoPool = t.gender === "female" ? womenPhotos : menPhotos;
+    const avatarIdx = (i + 6) % photoPool.length;
+    const avatarUrl = photoPool[avatarIdx];
+    const extraPhoto = photoPool[(avatarIdx + 5) % photoPool.length];
+
+    const loc = nigerianCities[i % nigerianCities.length];
+    const latJitter = (Math.random() - 0.5) * 0.12;
+    const lngJitter = (Math.random() - 0.5) * 0.12;
+
     await admin.from("profiles").upsert({
       id: u.id,
       role: "buyer",
       name: t.name,
       nickname: t.name,
-      looking_for: "Food dates",
-      age: 22 + (i % 10),
-      avatar_url: null,
+      looking_for: "Good home-cooked food",
+      age: 20 + (i % 15),
+      avatar_url: avatarUrl,
       phone: null,
-      bio: "I’m here for good vibes and better food.",
+      bio: t.bio,
       cuisines: t.cuisines,
       interests: t.interests,
       favorite_foods: null,
-      photos: null,
+      photos: [extraPhoto],
       specialty: null,
       price_min: null,
       price_max: null,
@@ -363,8 +527,8 @@ serve(async (req) => {
       kyc_country: "Nigeria",
       kyc_selfie: null,
       kyc_id_doc: null,
-      lat: null,
-      lng: null,
+      lat: loc.lat + latJitter,
+      lng: loc.lng + lngJitter,
     });
     created.push({ id: u.id, email, role: "buyer" });
   }
