@@ -3,7 +3,10 @@ import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { HeartIcon, InfoIcon, XIcon } from "../components/ui/Icons";
 import { useAuth } from "../hooks/useAuth";
+import { useStories, type StoryWithCook } from "../hooks/useStories";
+import { useStreak } from "../hooks/useStreak";
 import { useSwipe } from "../hooks/useSwipe";
+import { supabase } from "../lib/supabase";
 import type { Profile } from "../types/db";
 
 const formatNaira = (n: number) => {
@@ -60,6 +63,153 @@ function RangeSlider({
       <div className="flex justify-between text-[11px] text-slate-400 dark:text-zinc-500">
         <span>{format ? format(min) : min}</span>
         <span>{format ? format(max) : max}</span>
+      </div>
+    </div>
+  );
+}
+
+function StoriesStrip({
+  stories,
+  onSelect,
+}: {
+  stories: StoryWithCook[];
+  onSelect: (s: StoryWithCook) => void;
+}) {
+  if (stories.length === 0) return null;
+  return (
+    <div className="-mx-4 mb-3 px-4">
+      <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {stories.map((s) => {
+          const name = s.cook?.nickname ?? s.cook?.name ?? "Cook";
+          const photo = s.cook?.avatar_url;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => onSelect(s)}
+              className="flex flex-shrink-0 flex-col items-center gap-1"
+            >
+              <div className="rounded-full bg-gradient-to-br from-brand-400 to-punch-500 p-0.5">
+                <div className="rounded-full bg-white p-0.5 dark:bg-slate-950">
+                  {photo ? (
+                    <img
+                      src={photo}
+                      alt={name}
+                      className="h-14 w-14 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-slate-200 to-slate-300 text-lg font-bold text-slate-600 dark:from-slate-700 dark:to-slate-800 dark:text-slate-300">
+                      {name.charAt(0)}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="w-14 truncate text-center text-[10px] font-semibold leading-tight text-slate-600 dark:text-zinc-400">
+                {name}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function StoryViewer({
+  story,
+  onClose,
+  onLike,
+}: {
+  story: StoryWithCook;
+  onClose: () => void;
+  onLike?: () => void;
+}) {
+  const name = story.cook?.nickname ?? story.cook?.name ?? "Cook";
+  const photo = story.cook?.avatar_url;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center">
+      <div
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative w-full max-w-md overflow-hidden rounded-t-3xl bg-white shadow-2xl dark:bg-slate-950">
+        <div className="relative h-52 bg-black">
+          {photo ? (
+            <img
+              src={photo}
+              alt=""
+              className="h-full w-full object-cover opacity-80"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center bg-gradient-to-br from-brand-500/20 to-punch-500/20">
+              <span className="text-6xl">🍽️</span>
+            </div>
+          )}
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-5 pb-4 pt-12">
+            <div className="flex items-center gap-2">
+              {photo ? (
+                <img
+                  src={photo}
+                  alt=""
+                  className="h-8 w-8 rounded-full border border-white/30 object-cover"
+                />
+              ) : null}
+              <div className="font-bold text-white">{name}</div>
+              <span className="rounded-full border border-white/20 bg-white/15 px-2 py-0.5 text-[10px] font-semibold text-white">
+                Cook
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition hover:bg-black/60"
+          >
+            <XIcon className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="px-5 pb-8 pt-4">
+          <div className="text-xl font-bold text-slate-900 dark:text-zinc-100">
+            {story.title}
+          </div>
+          {story.description ? (
+            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
+              {story.description}
+            </p>
+          ) : null}
+
+          {(story.menu_items ?? []).length > 0 ? (
+            <div className="mt-4">
+              <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+                Tonight's Menu
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(story.menu_items ?? []).map((item) => (
+                  <span
+                    key={item}
+                    className="rounded-full bg-brand-500/10 px-3 py-1.5 text-xs font-semibold text-brand-700 dark:bg-brand-400/15 dark:text-brand-300"
+                  >
+                    🍽️ {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {onLike ? (
+            <button
+              type="button"
+              onClick={() => {
+                onLike();
+                onClose();
+              }}
+              className="mt-5 w-full rounded-2xl bg-gradient-to-r from-brand-500 to-brand-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/25 transition hover:from-brand-600 active:scale-95"
+            >
+              ❤️ Like this cook
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );
@@ -244,7 +394,7 @@ function ProfileInfoSheet({
           <button
             type="button"
             onClick={() => { onLike(); onClose(); }}
-            className="group flex h-18 w-18 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 shadow-xl shadow-brand-500/30 transition hover:shadow-brand-500/50 hover:scale-105 active:scale-95"
+            className="group flex items-center justify-center rounded-full border-2 border-brand-400/40 bg-gradient-to-br from-brand-400 to-brand-600 shadow-xl shadow-brand-500/30 transition hover:border-brand-500/60 hover:scale-105 hover:shadow-brand-500/50 active:scale-95"
             style={{ width: 72, height: 72 }}
           >
             <HeartIcon className="h-8 w-8 text-white transition group-hover:scale-110" />
@@ -271,6 +421,11 @@ export function SwipePage() {
   const [mouseDownX, setMouseDownX] = useState<number | null>(null);
   const [mouseDownY, setMouseDownY] = useState<number | null>(null);
   const [swipeAnim, setSwipeAnim] = useState<"like" | "nope" | null>(null);
+  const [selectedStory, setSelectedStory] = useState<StoryWithCook | null>(null);
+  const [todaySwipes, setTodaySwipes] = useState<number | null>(null);
+
+  const { streak, recordSwipe } = useStreak(user?.id ?? null);
+  const { stories } = useStories(user?.id ?? null);
 
   const { isLoading, activeCook, like, skip, refresh, isExhausted } = useSwipe({
     buyerId: user?.id ?? null,
@@ -281,6 +436,21 @@ export function SwipePage() {
     maxAge,
     maxPrice,
   });
+
+  useEffect(() => {
+    if (!isExhausted) return;
+    supabase
+      .from("swipes")
+      .select("id", { count: "exact", head: true })
+      .gte(
+        "created_at",
+        new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
+      )
+      .then(({ count }) => {
+        if (count != null) setTodaySwipes(count);
+      })
+      .catch(() => {});
+  }, [isExhausted]);
 
   const activePhotos = useMemo(() => {
     if (!activeCook) return [];
@@ -319,12 +489,14 @@ export function SwipePage() {
     setSwipeAnim("like");
     await new Promise((r) => setTimeout(r, 200));
     await like();
+    recordSwipe().catch(() => {});
   };
 
   const handleSkip = async () => {
     setSwipeAnim("nope");
     await new Promise((r) => setTimeout(r, 200));
     await skip();
+    recordSwipe().catch(() => {});
   };
 
   const roleLabel =
@@ -346,6 +518,11 @@ export function SwipePage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {streak && streak.current_streak >= 2 ? (
+            <div className="flex items-center gap-1 rounded-full border border-brand-400/30 bg-brand-500/10 px-2.5 py-1.5 text-xs font-bold text-brand-700 dark:bg-brand-400/15 dark:text-brand-300">
+              🔥 {streak.current_streak}
+            </div>
+          ) : null}
           <Link to="/map" className="block">
             <Button variant="secondary" className="px-3 py-2 text-xs">
               Map
@@ -371,6 +548,8 @@ export function SwipePage() {
         </div>
       </header>
 
+      <StoriesStrip stories={stories} onSelect={setSelectedStory} />
+
       <div className="flex-1">
         {isLoading ? (
           <div className="flex h-[460px] items-center justify-center">
@@ -384,8 +563,13 @@ export function SwipePage() {
             </div>
             <div className="max-w-xs text-sm leading-relaxed text-slate-500 dark:text-zinc-400">
               We're still growing — more cooks are joining every day. Come back
-              soon or adjust your filters to find more.
+              soon or adjust your filters.
             </div>
+            {todaySwipes != null && todaySwipes > 0 ? (
+              <div className="rounded-2xl border border-brand-400/20 bg-brand-500/8 px-4 py-2.5 text-sm font-semibold text-brand-700 dark:bg-brand-400/10 dark:text-brand-300">
+                🌟 {todaySwipes.toLocaleString()} food lovers active in Lagos today
+              </div>
+            ) : null}
             <div className="flex gap-2">
               <Button variant="secondary" onClick={() => setIsFilterOpen(true)}>
                 Adjust Filters
@@ -583,6 +767,21 @@ export function SwipePage() {
           onClose={() => setIsInfoOpen(false)}
           onLike={handleLike}
           onSkip={handleSkip}
+        />
+      ) : null}
+
+      {selectedStory ? (
+        <StoryViewer
+          story={selectedStory}
+          onClose={() => setSelectedStory(null)}
+          onLike={
+            selectedStory.cook_id !== user?.id
+              ? () => {
+                  handleLike().catch(() => {});
+                  setSelectedStory(null);
+                }
+              : undefined
+          }
         />
       ) : null}
 

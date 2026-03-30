@@ -21,7 +21,7 @@ A Tinder-style food matching app. Buyers swipe on cooks who visit them and cook 
 src/
   pages/         Route-level page components (SwipePage, AdminPage, etc.)
   components/    Shared UI components (Button, Card, Icons)
-  hooks/         Custom React hooks (useAuth, useSwipe, useChat, useMatch, useTheme)
+  hooks/         Custom React hooks (useAuth, useSwipe, useChat, useMatch, useTheme, useStreak, useStories)
   lib/           Utility modules (supabase client, media helpers)
   providers/     React context providers (AuthProvider, ThemeProvider)
   types/         TypeScript type definitions (db.ts)

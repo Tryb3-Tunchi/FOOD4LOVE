@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { useAuth } from "../hooks/useAuth";
+import { useStories } from "../hooks/useStories";
 import { supabase } from "../lib/supabase";
 import type { Profile, UserRole } from "../types/db";
 
@@ -10,6 +11,7 @@ type Row = Profile;
 
 export function AdminPage() {
   const { user, profile } = useAuth();
+  const { stories, deleteStory, refresh: refreshStories } = useStories(user?.id ?? null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSeeding, setIsSeeding] = useState(false);
   const [items, setItems] = useState<Row[]>([]);
@@ -202,6 +204,59 @@ export function AdminPage() {
           {error}
         </div>
       ) : null}
+
+      <div className="mt-4">
+        <div className="mb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-zinc-400">
+          Active Stories — {stories.length}
+        </div>
+        {stories.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-black/10 bg-black/2 p-4 text-center text-xs text-slate-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-zinc-400">
+            No active stories right now.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {stories.map((s) => {
+              const name = s.cook?.nickname ?? s.cook?.name ?? "Unknown cook";
+              return (
+                <div
+                  key={s.id}
+                  className="flex items-start gap-3 rounded-xl border border-black/8 bg-white p-3 dark:border-white/[0.06] dark:bg-slate-900"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-semibold text-slate-900 dark:text-zinc-100">
+                      {s.title}
+                    </div>
+                    <div className="mt-0.5 text-[10px] text-slate-500 dark:text-zinc-400">
+                      by {name}
+                      {(s.menu_items ?? []).length > 0
+                        ? ` · ${(s.menu_items ?? []).join(", ")}`
+                        : ""}
+                    </div>
+                    <div className="mt-0.5 text-[10px] text-slate-400 dark:text-zinc-500">
+                      Expires{" "}
+                      {new Date(s.expires_at).toLocaleString("en-NG", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        day: "numeric",
+                        month: "short",
+                      })}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      deleteStory(s.id).then(() => refreshStories())
+                    }
+                    className="flex-shrink-0 rounded-lg border border-red-400/30 px-2.5 py-1.5 text-xs font-semibold text-red-500 transition hover:bg-red-50 dark:hover:bg-red-500/10"
+                  >
+                    Delete
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       <div className="mt-4 space-y-3">
         {isLoading ? (

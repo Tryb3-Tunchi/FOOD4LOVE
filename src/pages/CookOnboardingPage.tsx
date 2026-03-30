@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { XIcon } from "../components/ui/Icons";
 import { useAuth } from "../hooks/useAuth";
+import { useStories } from "../hooks/useStories";
 import { supabase } from "../lib/supabase";
 import { uploadPublicMedia } from "../lib/media";
 import type { Dish } from "../types/db";
@@ -16,6 +17,8 @@ type DishDraft = {
 export function CookOnboardingPage() {
   const { user, profile, updateProfile } = useAuth();
   const navigate = useNavigate();
+  const { stories, postStory, deleteStory, refresh: refreshStories } = useStories(user?.id ?? null);
+
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
     profile?.avatar_url ?? null,
   );
@@ -39,6 +42,15 @@ export function CookOnboardingPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [storyTitle, setStoryTitle] = useState("");
+  const [storyDesc, setStoryDesc] = useState("");
+  const [storyMenuInput, setStoryMenuInput] = useState("");
+  const [storyMenuItems, setStoryMenuItems] = useState<string[]>([]);
+  const [isPostingStory, setIsPostingStory] = useState(false);
+  const [storyError, setStoryError] = useState<string | null>(null);
+  const [storyPosted, setStoryPosted] = useState(false);
+  const menuInputRef = useRef<HTMLInputElement>(null);
 
   const loadExisting = useCallback(async () => {
     if (!user?.id) {
@@ -203,6 +215,39 @@ export function CookOnboardingPage() {
       setError(err instanceof Error ? err.message : "Failed to save");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const addMenuItem = () => {
+    const val = storyMenuInput.trim().replace(/,+$/, "");
+    if (!val) return;
+    setStoryMenuItems((prev) =>
+      prev.includes(val) ? prev : [...prev, val],
+    );
+    setStoryMenuInput("");
+    menuInputRef.current?.focus();
+  };
+
+  const saveStory = async () => {
+    if (!storyTitle.trim()) return;
+    setStoryError(null);
+    setIsPostingStory(true);
+    try {
+      await postStory({
+        title: storyTitle.trim(),
+        description: storyDesc.trim() || undefined,
+        menu_items: storyMenuItems.length > 0 ? storyMenuItems : undefined,
+      });
+      setStoryTitle("");
+      setStoryDesc("");
+      setStoryMenuItems([]);
+      setStoryMenuInput("");
+      setStoryPosted(true);
+      setTimeout(() => setStoryPosted(false), 4000);
+    } catch (err) {
+      setStoryError(err instanceof Error ? err.message : "Failed to post story");
+    } finally {
+      setIsPostingStory(false);
     }
   };
 
@@ -456,6 +501,152 @@ export function CookOnboardingPage() {
           Identity verification is optional now, but required before you can
           accept matches.
         </div>
+      </Card>
+
+      <Card className="mt-4 space-y-4 p-4">
+        <div>
+          <div className="text-sm font-bold text-slate-900 dark:text-zinc-100">
+            Tonight's Story
+          </div>
+          <div className="mt-0.5 text-xs text-slate-500 dark:text-zinc-400">
+            Tell buyers what you're cooking today. Story expires in 24 hours.
+          </div>
+        </div>
+
+        <label className="block">
+          <div className="mb-1 text-xs font-semibold text-slate-700 dark:text-zinc-300">
+            Story title *
+          </div>
+          <input
+            value={storyTitle}
+            onChange={(e) => setStoryTitle(e.target.value)}
+            placeholder="e.g. Egusi Night 🍲 — spots available"
+            className="w-full rounded-xl border border-black/10 bg-white/70 px-3 py-3 text-sm text-slate-900 outline-none ring-brand-400/40 focus:ring-2 dark:border-white/15 dark:bg-white/6 dark:text-zinc-100"
+          />
+        </label>
+
+        <label className="block">
+          <div className="mb-1 text-xs font-semibold text-slate-700 dark:text-zinc-300">
+            Description (optional)
+          </div>
+          <textarea
+            value={storyDesc}
+            onChange={(e) => setStoryDesc(e.target.value)}
+            placeholder="A little more about tonight's session..."
+            rows={2}
+            className="w-full resize-none rounded-xl border border-black/10 bg-white/70 px-3 py-3 text-sm text-slate-900 outline-none ring-brand-400/40 focus:ring-2 dark:border-white/15 dark:bg-white/6 dark:text-zinc-100"
+          />
+        </label>
+
+        <div>
+          <div className="mb-1 text-xs font-semibold text-slate-700 dark:text-zinc-300">
+            Menu items (optional)
+          </div>
+          <div className="flex gap-2">
+            <input
+              ref={menuInputRef}
+              value={storyMenuInput}
+              onChange={(e) => setStoryMenuInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === ",") {
+                  e.preventDefault();
+                  addMenuItem();
+                }
+              }}
+              placeholder="e.g. Egusi Soup, Eba, Assorted meat"
+              className="flex-1 rounded-xl border border-black/10 bg-white/70 px-3 py-2.5 text-sm text-slate-900 outline-none ring-brand-400/40 focus:ring-2 dark:border-white/15 dark:bg-white/6 dark:text-zinc-100"
+            />
+            <button
+              type="button"
+              onClick={addMenuItem}
+              className="rounded-xl border border-black/10 bg-white/70 px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-white/90 dark:border-white/12 dark:bg-white/6 dark:text-zinc-200"
+            >
+              Add
+            </button>
+          </div>
+          {storyMenuItems.length > 0 ? (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {storyMenuItems.map((item) => (
+                <span
+                  key={item}
+                  className="flex items-center gap-1 rounded-full bg-brand-500/10 px-3 py-1 text-xs font-semibold text-brand-700 dark:bg-brand-400/15 dark:text-brand-300"
+                >
+                  {item}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setStoryMenuItems((prev) =>
+                        prev.filter((x) => x !== item),
+                      )
+                    }
+                    className="opacity-60 hover:opacity-100"
+                  >
+                    <XIcon className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        {storyError ? (
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-400 dark:text-red-300">
+            {storyError}
+          </div>
+        ) : null}
+
+        {storyPosted ? (
+          <div className="rounded-xl border border-green-500/30 bg-green-500/10 p-3 text-sm font-semibold text-green-700 dark:text-green-400">
+            ✓ Story posted! It will appear to buyers for the next 24 hours.
+          </div>
+        ) : null}
+
+        <Button
+          variant="primary"
+          className="w-full"
+          onClick={saveStory}
+          disabled={!storyTitle.trim() || isPostingStory}
+        >
+          {isPostingStory ? "Posting…" : "Post Story (24h)"}
+        </Button>
+
+        {stories.length > 0 ? (
+          <div>
+            <div className="mb-2 text-xs font-semibold text-slate-700 dark:text-zinc-300">
+              Your active stories
+            </div>
+            <div className="space-y-2">
+              {stories
+                .filter((s) => s.cook_id === user?.id)
+                .map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-black/8 bg-white/60 px-3 py-2.5 dark:border-white/10 dark:bg-white/5"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold text-slate-900 dark:text-zinc-100">
+                        {s.title}
+                      </div>
+                      {(s.menu_items ?? []).length > 0 ? (
+                        <div className="mt-0.5 truncate text-xs text-slate-500 dark:text-zinc-400">
+                          {(s.menu_items ?? []).join(", ")}
+                        </div>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        deleteStory(s.id).then(() => refreshStories())
+                      }
+                      className="flex-shrink-0 text-xs font-semibold text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+            </div>
+          </div>
+        ) : null}
       </Card>
     </div>
   );

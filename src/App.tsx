@@ -46,7 +46,7 @@ function SupabaseConfigScreen() {
     <div className="mx-auto flex min-h-svh max-w-md flex-col justify-center px-4 py-10">
       <div className="rounded-2xl border border-white/10 bg-zinc-900/50 p-4">
         <div className="text-sm font-semibold text-brand-700 dark:text-brand-300">
-          LoveFoodMatch
+          Food4Love
         </div>
         <h1 className="mt-2 text-xl font-semibold text-zinc-50">
           Supabase env not configured

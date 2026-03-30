@@ -44,7 +44,7 @@ export function VerifyEmailPage() {
     <div className="mx-auto flex min-h-svh max-w-md flex-col justify-center px-4 py-10">
       <div className="mb-6">
         <div className="text-sm font-semibold tracking-tight text-slate-950 dark:text-zinc-50">
-          LoveFoodMatch
+          Food4Love
         </div>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 dark:text-zinc-50">
           Verify your email

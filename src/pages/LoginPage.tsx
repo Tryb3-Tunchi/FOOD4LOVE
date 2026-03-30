@@ -109,7 +109,7 @@ export function LoginPage() {
       <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <div className="text-sm font-semibold tracking-tight text-slate-950 dark:text-zinc-50">
-            LoveFoodMatch
+            Food4Love
             <span className="ml-2 rounded-full bg-brand-400/20 px-2 py-0.5 text-[11px] font-semibold text-slate-900 dark:bg-brand-500/20 dark:text-zinc-100">
               beta
             </span>
