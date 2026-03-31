@@ -309,6 +309,7 @@ type SwipeInput = {
   minAge?: number | null;
   maxAge?: number | null;
   maxPrice?: number | null;
+  availableForParties?: boolean;
 };
 
 const toSet = (arr: string[] | null | undefined) =>
@@ -376,6 +377,7 @@ export function useSwipe(input: SwipeInput): SwipeState {
   const minAge = input.minAge ?? null;
   const maxAge = input.maxAge ?? null;
   const maxPrice = input.maxPrice ?? null;
+  const availableForParties = input.availableForParties ?? false;
   const [isLoading, setIsLoading] = useState(true);
   const [cooks, setCooks] = useState<Profile[]>([]);
   const [activeIndex, setActiveIndex] = useState(() => {
@@ -495,6 +497,9 @@ export function useSwipe(input: SwipeInput): SwipeState {
           (x) => x.cook.price_min == null || x.cook.price_min <= maxPrice,
         );
       }
+      if (availableForParties) {
+        filtered = filtered.filter((x) => x.cook.available_for_parties === true);
+      }
 
       const sortedFiltered = (filtered.length > 0 ? filtered : scored)
         .sort((a, b) => b.score - a.score)
@@ -545,6 +550,7 @@ export function useSwipe(input: SwipeInput): SwipeState {
     minAge,
     maxAge,
     maxPrice,
+    availableForParties,
   ]);
 
   useEffect(() => {

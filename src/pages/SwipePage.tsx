@@ -215,6 +215,17 @@ function StoryViewer({
   );
 }
 
+function onlineStatusLabel(lastSeen: string | null | undefined) {
+  if (!lastSeen) return null;
+  const ms = Date.now() - new Date(lastSeen).getTime();
+  const mins = Math.floor(ms / 60000);
+  if (mins < 5) return { text: "Online now", dotCls: "bg-green-500" };
+  if (mins < 60) return { text: `Active ${mins}m ago`, dotCls: "bg-amber-400" };
+  const hours = Math.floor(ms / 3600000);
+  if (hours < 24) return { text: `Active ${hours}h ago`, dotCls: "bg-slate-400" };
+  return null;
+}
+
 function ProfileInfoSheet({
   profile,
   photos,
@@ -229,6 +240,7 @@ function ProfileInfoSheet({
   onSkip: () => void;
 }) {
   const [photoIdx, setPhotoIdx] = useState(0);
+  const status = onlineStatusLabel(profile.last_seen_at);
 
   const sectionLabel = "text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500 mb-2";
   const tagCls = "rounded-full border border-black/10 bg-black/5 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-zinc-200";
@@ -307,6 +319,21 @@ function ProfileInfoSheet({
                 <span className="text-white/70">{profile.specialty}</span>
               )}
             </div>
+            {(status || profile.available_for_parties) ? (
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {status && (
+                  <div className="flex items-center gap-1.5">
+                    <span className={["h-1.5 w-1.5 rounded-full", status.dotCls].join(" ")} />
+                    <span className="text-xs font-semibold text-white/85">{status.text}</span>
+                  </div>
+                )}
+                {profile.available_for_parties && (
+                  <span className="rounded-full border border-white/25 bg-white/20 px-2 py-0.5 text-xs font-bold text-white backdrop-blur-sm">
+                    🎉 Available for parties
+                  </span>
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -380,6 +407,19 @@ function ProfileInfoSheet({
             </div>
           )}
 
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`Check out ${profile.name}'s cooking on Food4Love! 🍽️\n${window.location.origin}/cook/${profile.id}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-[#25D366]/40 bg-[#25D366]/10 py-3 text-sm font-bold text-[#1a9e4a] transition active:scale-95 dark:border-[#25D366]/30 dark:text-[#25D366]"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+              <path d="M12 0C5.374 0 0 5.373 0 12c0 2.117.549 4.103 1.51 5.833L.054 23.394a.75.75 0 00.917.916l5.562-1.456A11.945 11.945 0 0012 24c6.626 0 12-5.373 12-12S18.626 0 12 0zm0 21.75a9.708 9.708 0 01-4.95-1.353l-.354-.211-3.668.96.977-3.565-.229-.368A9.706 9.706 0 012.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z" />
+            </svg>
+            Share {profile.name}'s profile
+          </a>
+
           <div className="h-24" />
         </div>
 
@@ -413,6 +453,7 @@ export function SwipePage() {
   const [minAge, setMinAge] = useState(18);
   const [maxAge, setMaxAge] = useState(50);
   const [maxPrice, setMaxPrice] = useState(99000);
+  const [availableForParties, setAvailableForParties] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [photoIndex, setPhotoIndex] = useState(0);
@@ -435,6 +476,7 @@ export function SwipePage() {
     minAge,
     maxAge,
     maxPrice,
+    availableForParties,
   });
 
   useEffect(() => {
@@ -902,6 +944,25 @@ export function SwipePage() {
                   format={formatNaira}
                 />
 
+                <div>
+                  <div className="mb-2 text-sm font-bold text-slate-700 dark:text-zinc-200">
+                    Events & Parties
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setAvailableForParties(!availableForParties)}
+                    className={[
+                      "flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-sm font-semibold transition active:scale-95",
+                      availableForParties
+                        ? "border-brand-400/50 bg-brand-500/10 text-brand-700 dark:border-brand-400/40 dark:bg-brand-500/12 dark:text-brand-300"
+                        : "border-black/10 bg-white text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-zinc-300",
+                    ].join(" ")}
+                  >
+                    <span>🎉 Available for parties</span>
+                    {availableForParties ? <span className="text-brand-600 dark:text-brand-400">✓</span> : null}
+                  </button>
+                </div>
+
                 <div className="flex gap-3 pt-1">
                   <button
                     type="button"
@@ -911,6 +972,7 @@ export function SwipePage() {
                       setMinAge(18);
                       setMaxAge(50);
                       setMaxPrice(99000);
+                      setAvailableForParties(false);
                     }}
                     className="flex-1 rounded-2xl border border-black/10 py-3.5 text-sm font-semibold text-slate-600 transition hover:bg-black/4 active:scale-95 dark:border-white/10 dark:text-zinc-300 dark:hover:bg-white/6"
                   >

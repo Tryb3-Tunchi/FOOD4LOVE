@@ -5,6 +5,20 @@ import { supabase } from "../lib/supabase";
 import type { Profile, UserRole } from "../types/db";
 import { AuthContext } from "./AuthContext";
 
+const generateReferralCode = (userId: string): string => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let h = 0;
+  for (let i = 0; i < userId.length; i++) {
+    h = ((h << 5) - h + userId.charCodeAt(i)) | 0;
+  }
+  const abs = Math.abs(h);
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars[(abs + i * 37) % chars.length];
+  }
+  return code;
+};
+
 const normalizeProfileTableNotFound = (err: unknown) => {
   const msg = err instanceof Error ? err.message : String(err);
   const lower = msg.toLowerCase();
@@ -87,6 +101,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         kyc_id_doc: null,
         lat: null,
         lng: null,
+        available_for_parties: false,
+        last_seen_at: new Date().toISOString(),
+        referral_code: generateReferralCode(userId),
       })
       .select("*")
       .single();
@@ -132,6 +149,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .catch(() => {})
       .finally(() => setIsProfileLoading(false));
   }, [refreshProfile, user]);
+
+  useEffect(() => {
+    if (!user?.id || !profile || profile.is_bot) return;
+    const key = "lovefoodmatch.lastSeenSent";
+    const last = Number(sessionStorage.getItem(key) ?? 0);
+    if (Date.now() - last < 5 * 60 * 1000) return;
+    sessionStorage.setItem(key, String(Date.now()));
+    void supabase.from("profiles").update({ last_seen_at: new Date().toISOString() }).eq("id", user.id);
+  }, [user?.id, profile?.id]);
 
   useEffect(() => {
     if (!user?.id || !profile) return;

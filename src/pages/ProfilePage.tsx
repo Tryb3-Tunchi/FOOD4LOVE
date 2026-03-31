@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { MoonIcon, SunIcon, UserIcon } from "../components/ui/Icons";
@@ -10,10 +11,38 @@ const formatNaira = (n: number) => {
 };
 
 export function ProfilePage() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, updateProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [savingParties, setSavingParties] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const isCook = profile?.role === "cook";
+
+  const referralCode = profile?.referral_code ?? profile?.id?.slice(0, 8).toUpperCase() ?? null;
+  const referralLink = referralCode ? `${window.location.origin}/login?ref=${referralCode}` : null;
+
+  const copyReferralLink = () => {
+    if (!referralLink) return;
+    navigator.clipboard.writeText(referralLink).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
+  };
+
+  const whatsappShareText = referralLink
+    ? `Join me on Food4Love — the app to match with cooks who come cook at your place! 🍽️\nUse my link: ${referralLink}`
+    : null;
+
+  const toggleParties = async () => {
+    if (!profile || savingParties) return;
+    setSavingParties(true);
+    try {
+      await updateProfile({ available_for_parties: !profile.available_for_parties });
+    } catch {}
+    finally {
+      setSavingParties(false);
+    }
+  };
 
   return (
     <div className="mx-auto flex min-h-svh max-w-md flex-col px-4 py-6">

@@ -162,6 +162,17 @@ for select
 to authenticated
 using (true);
 
+drop policy if exists "profiles_public_read" on public.profiles;
+create policy "profiles_public_read"
+on public.profiles
+for select
+to anon
+using (true);
+
+alter table public.profiles add column if not exists available_for_parties boolean not null default false;
+alter table public.profiles add column if not exists last_seen_at timestamptz null;
+alter table public.profiles add column if not exists referral_code text null;
+
 drop policy if exists "profiles_insert" on public.profiles;
 create policy "profiles_insert"
 on public.profiles

@@ -30,6 +30,9 @@ export type Profile = {
   kyc_id_doc: string | null;
   lat: number | null;
   lng: number | null;
+  available_for_parties?: boolean;
+  last_seen_at?: string | null;
+  referral_code?: string | null;
   created_at: string;
   updated_at: string;
 };
