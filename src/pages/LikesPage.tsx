@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "../components/ui/Button";
 import { HeartIcon, XIcon } from "../components/ui/Icons";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../lib/supabase";
@@ -48,11 +47,6 @@ function Avatar({
       {name.charAt(0).toUpperCase()}
     </div>
   );
-}
-
-function formatNaira(n: number) {
-  if (n >= 1000) return `₦${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;
-  return `₦${n}`;
 }
 
 export function LikesPage() {

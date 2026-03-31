@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import type { LikeStatus, Profile, SwipeDirection } from "../types/db";
 
@@ -352,6 +352,22 @@ const jitter01 = (seed: string) => {
   return ((h >>> 0) % 1000) / 1000;
 };
 
+const getOrCreateSessionSeed = (): number => {
+  try {
+    const key = "lovefoodmatch.sessionSeed";
+    const existing = sessionStorage.getItem(key);
+    if (existing) return parseFloat(existing);
+    const seed = Math.random();
+    sessionStorage.setItem(key, String(seed));
+    return seed;
+  } catch {
+    return Math.random();
+  }
+};
+
+const SESSION_SEED = getOrCreateSessionSeed();
+const SWIPE_INDEX_KEY = "lovefoodmatch.swipeIndex";
+
 export function useSwipe(input: SwipeInput): SwipeState {
   const buyerId = input.buyerId;
   const buyerProfile = input.buyerProfile;
@@ -362,10 +378,25 @@ export function useSwipe(input: SwipeInput): SwipeState {
   const maxPrice = input.maxPrice ?? null;
   const [isLoading, setIsLoading] = useState(true);
   const [cooks, setCooks] = useState<Profile[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(SWIPE_INDEX_KEY);
+      return saved ? Math.max(0, parseInt(saved, 10)) : 0;
+    } catch {
+      return 0;
+    }
+  });
+
+  const isFirstMount = useRef(true);
 
   const activeCook = cooks[activeIndex] ?? null;
   const isExhausted = !isLoading && activeIndex >= cooks.length;
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SWIPE_INDEX_KEY, String(activeIndex));
+    } catch {}
+  }, [activeIndex]);
 
   const refresh = useCallback(async () => {
     if (!buyerId) {
@@ -438,7 +469,7 @@ export function useSwipe(input: SwipeInput): SwipeState {
           cuisineMatches * 14 + interestMatches * 10 + favoriteMatches * 6;
         const distancePenalty =
           distKm != null ? Math.min(distKm, 90) * 0.35 : 0;
-        const randomness = (jitter01(cook.id) - 0.5) * 1.8;
+        const randomness = (jitter01(cook.id + String(SESSION_SEED)) - 0.5) * 3;
         const score = tasteScore - distancePenalty + randomness;
 
         return { cook, score, distKm };
@@ -492,11 +523,13 @@ export function useSwipe(input: SwipeInput): SwipeState {
       }
 
       setCooks(finalList);
-      setActiveIndex(0);
+      if (!isFirstMount.current) setActiveIndex(0);
+      isFirstMount.current = false;
       setIsLoading(false);
     } catch {
       setCooks(demoCooks);
-      setActiveIndex(0);
+      if (!isFirstMount.current) setActiveIndex(0);
+      isFirstMount.current = false;
       setIsLoading(false);
     }
   }, [

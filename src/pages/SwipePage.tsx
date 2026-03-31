@@ -439,17 +439,17 @@ export function SwipePage() {
 
   useEffect(() => {
     if (!isExhausted) return;
-    supabase
+    void supabase
       .from("swipes")
       .select("id", { count: "exact", head: true })
       .gte(
         "created_at",
         new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
       )
-      .then(({ count }) => {
-        if (count != null) setTodaySwipes(count);
-      })
-      .catch(() => {});
+      .then(
+        ({ count }) => { if (count != null) setTodaySwipes(count); },
+        () => {},
+      );
   }, [isExhausted]);
 
   const activePhotos = useMemo(() => {
