@@ -549,7 +549,7 @@ export function SwipePage() {
         : "People";
 
   return (
-    <div className="mx-auto flex min-h-svh max-w-md flex-col px-4 py-6">
+    <div className="mx-auto flex max-h-svh min-h-svh max-w-md flex-col overflow-hidden px-4 py-4">
       <header className="mb-4 flex items-center justify-between">
         <div>
           <div className="text-sm font-semibold text-brand-700 dark:text-brand-300">
@@ -592,13 +592,13 @@ export function SwipePage() {
 
       <StoriesStrip stories={stories} onSelect={setSelectedStory} />
 
-      <div className="flex-1">
+      <div className="min-h-0 flex-1">
         {isLoading ? (
-          <div className="flex h-[460px] items-center justify-center">
+          <div className="flex h-full min-h-[320px] items-center justify-center">
             <div className="text-sm text-slate-400 dark:text-zinc-500">Loading…</div>
           </div>
         ) : isExhausted ? (
-          <div className="flex h-[460px] flex-col items-center justify-center gap-4 text-center">
+          <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-4 text-center">
             <div className="text-5xl">🍽️</div>
             <div className="text-xl font-bold text-slate-900 dark:text-zinc-100">
               You've seen everyone!
@@ -623,7 +623,7 @@ export function SwipePage() {
           </div>
         ) : activeCook ? (
           <div
-            className="relative"
+            className="relative h-full"
             style={{
               transform:
                 swipeAnim === "like"
@@ -635,9 +635,10 @@ export function SwipePage() {
               transition: swipeAnim ? "all 0.2s ease-out" : "none",
             }}
           >
-            <div className="relative overflow-hidden rounded-3xl bg-black shadow-2xl dark:shadow-black/60">
+            <div className="relative h-full overflow-hidden rounded-3xl bg-black shadow-2xl dark:shadow-black/60">
               <div
-                className="aspect-[4/5] w-full overflow-hidden"
+                className="h-full w-full overflow-hidden"
+                style={{ aspectRatio: "4/5", maxHeight: "100%" }}
                 onTouchStart={(e) => {
                   const t = e.touches[0];
                   setTouchStartX(t?.clientX ?? null);
@@ -780,12 +781,12 @@ export function SwipePage() {
         ) : null}
       </div>
 
-      <div className="mt-6 flex items-center justify-center gap-5">
+      <div className="mt-4 flex h-24 flex-shrink-0 items-center justify-center gap-6">
         <button
           type="button"
           onClick={handleSkip}
           disabled={!activeCook || isLoading || isExhausted}
-          className="group flex h-16 w-16 items-center justify-center rounded-full border-2 border-red-400/40 bg-white shadow-lg transition hover:border-red-400 hover:shadow-lg hover:shadow-red-400/20 active:scale-90 disabled:pointer-events-none disabled:opacity-30 dark:bg-slate-900 dark:hover:shadow-red-400/15"
+          className="group flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full border-2 border-red-400/40 bg-white shadow-lg transition hover:border-red-400 hover:shadow-lg hover:shadow-red-400/20 active:scale-90 disabled:pointer-events-none disabled:opacity-30 dark:bg-slate-900 dark:hover:shadow-red-400/15"
         >
           <XIcon className="h-7 w-7 text-red-400 transition group-hover:scale-110" />
         </button>
@@ -794,7 +795,7 @@ export function SwipePage() {
           type="button"
           onClick={handleLike}
           disabled={!activeCook || isLoading || isExhausted}
-          className="group flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 shadow-xl shadow-brand-500/30 transition hover:scale-105 hover:shadow-2xl hover:shadow-brand-500/40 active:scale-95 disabled:pointer-events-none disabled:opacity-30"
+          className="group flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-brand-600 shadow-xl shadow-brand-500/30 transition hover:scale-105 hover:shadow-2xl hover:shadow-brand-500/40 active:scale-95 disabled:pointer-events-none disabled:opacity-30"
         >
           <HeartIcon className="h-9 w-9 text-white transition group-hover:scale-110" />
         </button>
@@ -803,7 +804,7 @@ export function SwipePage() {
           type="button"
           disabled={!activeCook || isLoading || isExhausted}
           onClick={() => setIsInfoOpen(true)}
-          className="group flex h-16 w-16 items-center justify-center rounded-full border-2 border-sky-400/40 bg-white shadow-lg transition hover:border-sky-400 hover:shadow-lg hover:shadow-sky-400/20 active:scale-90 disabled:pointer-events-none disabled:opacity-30 dark:bg-slate-900 dark:hover:shadow-sky-400/15"
+          className="group flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full border-2 border-sky-400/40 bg-white shadow-lg transition hover:border-sky-400 hover:shadow-lg hover:shadow-sky-400/20 active:scale-90 disabled:pointer-events-none disabled:opacity-30 dark:bg-slate-900 dark:hover:shadow-sky-400/15"
         >
           <InfoIcon className="h-6 w-6 text-sky-400 transition group-hover:scale-110" />
         </button>

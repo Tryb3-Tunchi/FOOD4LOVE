@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
-import { MoonIcon, SunIcon } from "../components/ui/Icons";
+import { EyeIcon, EyeOffIcon, MoonIcon, SunIcon } from "../components/ui/Icons";
 import { useTheme } from "../hooks/useTheme";
 
 export function LoginPage() {
@@ -31,6 +31,7 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -254,16 +255,31 @@ export function LoginPage() {
                 <div className="mb-1 text-xs font-semibold text-slate-800 dark:text-zinc-200">
                   Password
                 </div>
-                <input
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 8 characters"
-                  type="password"
-                  autoComplete={
-                    mode === "signup" ? "new-password" : "current-password"
-                  }
-                  className="w-full rounded-2xl border border-black/10 bg-white px-3 py-3 text-sm text-slate-950 outline-none ring-brand-400/40 transition focus:border-brand-400/40 focus:ring-2 hover:border-black/20 dark:border-white/12 dark:bg-white/8 dark:text-zinc-100 dark:hover:border-white/20"
-                />
+                <div className="relative">
+                  <input
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Minimum 8 characters"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete={
+                      mode === "signup" ? "new-password" : "current-password"
+                    }
+                    className="w-full rounded-2xl border border-black/10 bg-white px-3 py-3 pr-11 text-sm text-slate-950 outline-none ring-brand-400/40 transition focus:border-brand-400/40 focus:ring-2 hover:border-black/20 dark:border-white/12 dark:bg-white/8 dark:text-zinc-100 dark:hover:border-white/20"
+                  />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition hover:text-slate-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? (
+                      <EyeOffIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
               </label>
 
               <Button
