@@ -29,6 +29,7 @@ export type AuthContextValue = {
     cuisines: string[] | null;
     interests: string[] | null;
     favorite_foods: string[] | null;
+    age?: number | null;
     lat: number | null;
     lng: number | null;
   }) => Promise<Profile>;

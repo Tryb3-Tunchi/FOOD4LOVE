@@ -5,7 +5,7 @@ import { Card } from "../components/ui/Card";
 import { useAuth } from "../hooks/useAuth";
 import { useStories } from "../hooks/useStories";
 import { supabase } from "../lib/supabase";
-import type { Profile, UserRole } from "../types/db";
+import type { Profile } from "../types/db";
 
 type Row = Profile;
 type AdminTab = "overview" | "cooks" | "buyers" | "stories";
@@ -87,8 +87,6 @@ export function AdminPage() {
     }
     setItems((prev) => prev.map((p) => (p.id === id ? (data as Row) : p)));
   };
-
-  const setRole = async (id: string, role: UserRole) => update(id, { role });
 
   const deleteAccount = async (id: string) => {
     setIsDeleting(true);

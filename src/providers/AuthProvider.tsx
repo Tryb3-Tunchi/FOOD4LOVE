@@ -269,6 +269,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cuisines: string[] | null;
       interests: string[] | null;
       favorite_foods: string[] | null;
+      age?: number | null;
       lat: number | null;
       lng: number | null;
     }) => {
@@ -289,6 +290,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           cuisines: input.cuisines,
           interests: input.interests,
           favorite_foods: input.favorite_foods,
+          age: input.age ?? null,
           lat: input.lat,
           lng: input.lng,
         })
