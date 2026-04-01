@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
-import { HeartFilledIcon, HeartIcon, InfoIcon, XIcon } from "../components/ui/Icons";
+import {
+  HeartFilledIcon,
+  HeartIcon,
+  InfoIcon,
+  XIcon,
+} from "../components/ui/Icons";
 import { useAuth } from "../hooks/useAuth";
 import { useStories, type StoryWithCook } from "../hooks/useStories";
 import { useStreak } from "../hooks/useStreak";
@@ -132,7 +137,7 @@ function StoryViewer({
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-md overflow-hidden rounded-t-3xl bg-white shadow-2xl dark:bg-slate-950">
+      <div className="relative w-full gap-6 max-w-md overflow-hidden rounded-t-3xl bg-white shadow-2xl dark:bg-slate-950">
         <div className="relative h-52 bg-black">
           {photo ? (
             <img
@@ -222,7 +227,8 @@ function onlineStatusLabel(lastSeen: string | null | undefined) {
   if (mins < 5) return { text: "Online now", dotCls: "bg-green-500" };
   if (mins < 60) return { text: `Active ${mins}m ago`, dotCls: "bg-amber-400" };
   const hours = Math.floor(ms / 3600000);
-  if (hours < 24) return { text: `Active ${hours}h ago`, dotCls: "bg-slate-400" };
+  if (hours < 24)
+    return { text: `Active ${hours}h ago`, dotCls: "bg-slate-400" };
   return null;
 }
 
@@ -242,8 +248,10 @@ function ProfileInfoSheet({
   const [photoIdx, setPhotoIdx] = useState(0);
   const status = onlineStatusLabel(profile.last_seen_at);
 
-  const sectionLabel = "text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500 mb-2";
-  const tagCls = "rounded-full border border-black/10 bg-black/5 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-zinc-200";
+  const sectionLabel =
+    "text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500 mb-2";
+  const tagCls =
+    "rounded-full border border-black/10 bg-black/5 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-white/10 dark:bg-white/8 dark:text-zinc-200";
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
@@ -260,7 +268,9 @@ function ProfileInfoSheet({
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-slate-400">No photo</div>
+            <div className="flex h-full items-center justify-center text-slate-400">
+              No photo
+            </div>
           )}
 
           {photos.length > 1 && (
@@ -284,7 +294,9 @@ function ProfileInfoSheet({
               <button
                 type="button"
                 className="absolute left-0 top-0 h-full w-1/3"
-                onClick={() => setPhotoIdx((i) => (i === 0 ? photos.length - 1 : i - 1))}
+                onClick={() =>
+                  setPhotoIdx((i) => (i === 0 ? photos.length - 1 : i - 1))
+                }
               />
               <button
                 type="button"
@@ -308,7 +320,9 @@ function ProfileInfoSheet({
             <div className="text-2xl font-bold text-white">
               {profile.name}
               {profile.age != null && (
-                <span className="ml-2 text-xl font-semibold opacity-90">{profile.age}</span>
+                <span className="ml-2 text-xl font-semibold opacity-90">
+                  {profile.age}
+                </span>
               )}
             </div>
             <div className="mt-0.5 flex items-center gap-2 text-sm text-white/80">
@@ -319,12 +333,19 @@ function ProfileInfoSheet({
                 <span className="text-white/70">{profile.specialty}</span>
               )}
             </div>
-            {(status || profile.available_for_parties) ? (
+            {status || profile.available_for_parties ? (
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {status && (
                   <div className="flex items-center gap-1.5">
-                    <span className={["h-1.5 w-1.5 rounded-full", status.dotCls].join(" ")} />
-                    <span className="text-xs font-semibold text-white/85">{status.text}</span>
+                    <span
+                      className={[
+                        "h-1.5 w-1.5 rounded-full",
+                        status.dotCls,
+                      ].join(" ")}
+                    />
+                    <span className="text-xs font-semibold text-white/85">
+                      {status.text}
+                    </span>
                   </div>
                 )}
                 {profile.available_for_parties && (
@@ -338,19 +359,22 @@ function ProfileInfoSheet({
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
-          {profile.role === "cook" && profile.price_min != null && profile.price_max != null && (
-            <div className="mb-5 flex items-center gap-3 rounded-2xl bg-brand-500/10 px-4 py-3 dark:bg-brand-400/10">
-              <div className="text-2xl">🍽️</div>
-              <div>
-                <div className="text-xs font-bold uppercase tracking-widest text-brand-700 dark:text-brand-400">
-                  Session Rate
-                </div>
-                <div className="text-lg font-bold text-slate-900 dark:text-zinc-100">
-                  {formatNaira(profile.price_min)} – {formatNaira(profile.price_max)}
+          {profile.role === "cook" &&
+            profile.price_min != null &&
+            profile.price_max != null && (
+              <div className="mb-5 flex items-center gap-3 rounded-2xl bg-brand-500/10 px-4 py-3 dark:bg-brand-400/10">
+                <div className="text-2xl">🍽️</div>
+                <div>
+                  <div className="text-xs font-bold uppercase tracking-widest text-brand-700 dark:text-brand-400">
+                    Session Rate
+                  </div>
+                  <div className="text-lg font-bold text-slate-900 dark:text-zinc-100">
+                    {formatNaira(profile.price_min)} –{" "}
+                    {formatNaira(profile.price_max)}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
           {profile.bio && (
             <div className="mb-5">
@@ -377,7 +401,9 @@ function ProfileInfoSheet({
               </div>
               <div className="flex flex-wrap gap-2">
                 {(profile.cuisines ?? []).map((c) => (
-                  <span key={c} className={tagCls}>🍲 {c}</span>
+                  <span key={c} className={tagCls}>
+                    🍲 {c}
+                  </span>
                 ))}
               </div>
             </div>
@@ -388,7 +414,9 @@ function ProfileInfoSheet({
               <div className={sectionLabel}>Interests</div>
               <div className="flex flex-wrap gap-2">
                 {(profile.interests ?? []).map((t) => (
-                  <span key={t} className={tagCls}>✦ {t}</span>
+                  <span key={t} className={tagCls}>
+                    ✦ {t}
+                  </span>
                 ))}
               </div>
             </div>
@@ -397,11 +425,15 @@ function ProfileInfoSheet({
           {(profile.favorite_foods ?? []).length > 0 && (
             <div className="mb-5">
               <div className={sectionLabel}>
-                {profile.role === "cook" ? "Signature Dishes" : "Favourite Foods"}
+                {profile.role === "cook"
+                  ? "Signature Dishes"
+                  : "Favourite Foods"}
               </div>
               <div className="flex flex-wrap gap-2">
                 {(profile.favorite_foods ?? []).map((f) => (
-                  <span key={f} className={tagCls}>🔥 {f}</span>
+                  <span key={f} className={tagCls}>
+                    🔥 {f}
+                  </span>
                 ))}
               </div>
             </div>
@@ -426,14 +458,20 @@ function ProfileInfoSheet({
         <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-5 border-t border-black/8 bg-white/95 py-4 backdrop-blur dark:border-white/8 dark:bg-slate-950/95">
           <button
             type="button"
-            onClick={() => { onSkip(); onClose(); }}
+            onClick={() => {
+              onSkip();
+              onClose();
+            }}
             className="group flex h-14 w-14 items-center justify-center rounded-full border-2 border-red-400/40 bg-white shadow-lg transition hover:border-red-400 hover:shadow-red-400/20 active:scale-90 dark:bg-slate-900"
           >
             <XIcon className="h-6 w-6 text-red-400 transition group-hover:scale-110" />
           </button>
           <button
             type="button"
-            onClick={() => { onLike(); onClose(); }}
+            onClick={() => {
+              onLike();
+              onClose();
+            }}
             className="group flex items-center justify-center rounded-full shadow-xl transition hover:scale-105 active:scale-95"
             style={{ width: 72, height: 72, backgroundColor: "#f59e0b" }}
           >
@@ -448,7 +486,9 @@ function ProfileInfoSheet({
 export function SwipePage() {
   const { user, profile } = useAuth();
 
-  const [filterRole, setFilterRole] = useState<"all" | "cook" | "buyer">("cook");
+  const [filterRole, setFilterRole] = useState<"all" | "cook" | "buyer">(
+    "cook",
+  );
   const [maxDistanceKm, setMaxDistanceKm] = useState(40);
   const [minAge, setMinAge] = useState(18);
   const [maxAge, setMaxAge] = useState(50);
@@ -462,7 +502,9 @@ export function SwipePage() {
   const [mouseDownX, setMouseDownX] = useState<number | null>(null);
   const [mouseDownY, setMouseDownY] = useState<number | null>(null);
   const [swipeAnim, setSwipeAnim] = useState<"like" | "nope" | null>(null);
-  const [selectedStory, setSelectedStory] = useState<StoryWithCook | null>(null);
+  const [selectedStory, setSelectedStory] = useState<StoryWithCook | null>(
+    null,
+  );
   const [todaySwipes, setTodaySwipes] = useState<number | null>(null);
 
   const { streak, recordSwipe } = useStreak(user?.id ?? null);
@@ -489,7 +531,9 @@ export function SwipePage() {
         new Date(new Date().setHours(0, 0, 0, 0)).toISOString(),
       )
       .then(
-        ({ count }) => { if (count != null) setTodaySwipes(count); },
+        ({ count }) => {
+          if (count != null) setTodaySwipes(count);
+        },
         () => {},
       );
   }, [isExhausted]);
@@ -549,7 +593,7 @@ export function SwipePage() {
         : "People";
 
   return (
-    <div className="mx-auto flex min-h-svh max-w-md flex-col px-4 py-4">
+    <div className="mx-auto flex gap-6 pb-6 max-w-md flex-col px-4 py-4">
       <header className="mb-4 flex items-center justify-between">
         <div>
           <div className="text-sm font-semibold text-brand-700 dark:text-brand-300">
@@ -575,7 +619,11 @@ export function SwipePage() {
             onClick={() => setIsFilterOpen(true)}
             className="flex items-center gap-1.5 rounded-full border border-black/10 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:bg-white hover:shadow active:scale-95 dark:border-white/12 dark:bg-white/8 dark:text-zinc-200 dark:hover:bg-white/12"
           >
-            <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="currentColor">
+            <svg
+              className="h-3.5 w-3.5"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+            >
               <path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 0 2H2a1 1 0 0 1-1-1zm2 4a1 1 0 0 1 1-1h8a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1zm2 4a1 1 0 0 1 1-1h4a1 1 0 0 1 0 2H6a1 1 0 0 1-1-1z" />
             </svg>
             Filter
@@ -595,7 +643,9 @@ export function SwipePage() {
       <div className="flex-1">
         {isLoading ? (
           <div className="flex h-[440px] items-center justify-center">
-            <div className="text-sm text-slate-400 dark:text-zinc-500">Loading…</div>
+            <div className="text-sm text-slate-400 dark:text-zinc-500">
+              Loading…
+            </div>
           </div>
         ) : isExhausted ? (
           <div className="flex h-[440px] flex-col items-center justify-center gap-4 text-center">
@@ -609,7 +659,8 @@ export function SwipePage() {
             </div>
             {todaySwipes != null && todaySwipes > 0 ? (
               <div className="rounded-2xl border border-brand-400/20 bg-brand-500/8 px-4 py-2.5 text-sm font-semibold text-brand-700 dark:bg-brand-400/10 dark:text-brand-300">
-                🌟 {todaySwipes.toLocaleString()} food lovers active in Lagos today
+                🌟 {todaySwipes.toLocaleString()} food lovers active in Lagos
+                today
               </div>
             ) : null}
             <div className="flex gap-2">
@@ -650,7 +701,10 @@ export function SwipePage() {
                   setTouchStartY(null);
                   const t = e.changedTouches[0];
                   if (startX == null || startY == null || !t) return;
-                  await applySwipeFromDelta(t.clientX - startX, t.clientY - startY);
+                  await applySwipeFromDelta(
+                    t.clientX - startX,
+                    t.clientY - startY,
+                  );
                 }}
                 onMouseDown={(e) => {
                   setMouseDownX(e.clientX);
@@ -662,7 +716,10 @@ export function SwipePage() {
                   setMouseDownX(null);
                   setMouseDownY(null);
                   if (startX == null || startY == null) return;
-                  await applySwipeFromDelta(e.clientX - startX, e.clientY - startY);
+                  await applySwipeFromDelta(
+                    e.clientX - startX,
+                    e.clientY - startY,
+                  );
                 }}
               >
                 {activePhotos[photoIndex] ? (
@@ -699,21 +756,25 @@ export function SwipePage() {
                       type="button"
                       className="absolute left-0 top-0 h-full w-1/2"
                       onClick={() =>
-                        setPhotoIndex((i) => (i === 0 ? activePhotos.length - 1 : i - 1))
+                        setPhotoIndex((i) =>
+                          i === 0 ? activePhotos.length - 1 : i - 1,
+                        )
                       }
                     />
                     <button
                       type="button"
                       className="absolute right-0 top-0 h-full w-1/2"
-                      onClick={() => setPhotoIndex((i) => (i + 1) % activePhotos.length)}
+                      onClick={() =>
+                        setPhotoIndex((i) => (i + 1) % activePhotos.length)
+                      }
                     />
                   </>
                 )}
 
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent px-4 pb-5 pt-16">
                   {activeCook.daily_special &&
-                    activeCook.daily_special_until &&
-                    new Date(activeCook.daily_special_until) > new Date() ? (
+                  activeCook.daily_special_until &&
+                  new Date(activeCook.daily_special_until) > new Date() ? (
                     <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-amber-400/95 px-3 py-1 text-xs font-bold text-amber-900 shadow-sm backdrop-blur-sm">
                       🍽️ Today: {activeCook.daily_special}
                     </div>
@@ -730,7 +791,9 @@ export function SwipePage() {
                       </div>
                       <div className="mt-0.5 text-sm font-medium text-white/80">
                         {activeCook.role === "cook" ? "Cook" : "Foodie"}
-                        {activeCook.specialty ? ` · ${activeCook.specialty}` : ""}
+                        {activeCook.specialty
+                          ? ` · ${activeCook.specialty}`
+                          : ""}
                         {activeCook.role === "cook" &&
                         activeCook.price_min != null &&
                         activeCook.price_max != null
@@ -780,7 +843,7 @@ export function SwipePage() {
         ) : null}
       </div>
 
-      <div className="mt-2 flex flex-shrink-0 items-center justify-center gap-6 py-3 sm:mt-5">
+      <div className="mt-2 flex flex-shrink-0 items-center pb-6 justify-center gap-6 py-3 sm:mt-5">
         <button
           type="button"
           onClick={handleSkip}
@@ -863,7 +926,11 @@ export function SwipePage() {
                   onClick={() => setIsFilterOpen(false)}
                   className="rounded-full bg-black/6 p-2 text-slate-600 transition hover:bg-black/10 active:scale-90 dark:bg-white/8 dark:text-zinc-300 dark:hover:bg-white/12"
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor">
+                  <svg
+                    className="h-4 w-4"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                  >
                     <path d="M4.47 4.47a.75.75 0 011.06 0L8 6.94l2.47-2.47a.75.75 0 111.06 1.06L9.06 8l2.47 2.47a.75.75 0 11-1.06 1.06L8 9.06l-2.47 2.47a.75.75 0 01-1.06-1.06L6.94 8 4.47 5.53a.75.75 0 010-1.06z" />
                   </svg>
                 </button>
@@ -966,7 +1033,11 @@ export function SwipePage() {
                     ].join(" ")}
                   >
                     <span>🎉 Available for parties</span>
-                    {availableForParties ? <span className="text-brand-600 dark:text-brand-400">✓</span> : null}
+                    {availableForParties ? (
+                      <span className="text-brand-600 dark:text-brand-400">
+                        ✓
+                      </span>
+                    ) : null}
                   </button>
                 </div>
 
