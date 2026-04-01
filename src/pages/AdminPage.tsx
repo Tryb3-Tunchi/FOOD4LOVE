@@ -134,6 +134,31 @@ export function AdminPage() {
         </Link>
       </header>
 
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <Link to="/swipe">
+          <div className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-black/10 bg-gradient-to-br from-brand-100 to-lime-100 px-3 py-4 text-center shadow-sm transition hover:shadow-md active:scale-95 dark:border-white/12 dark:from-brand-500/20 dark:to-lime-500/10">
+            <span className="text-2xl">🍽️</span>
+            <div className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+              Buyer view
+            </div>
+            <div className="text-[11px] text-slate-600 dark:text-zinc-400">
+              Discover / Swipe
+            </div>
+          </div>
+        </Link>
+        <Link to="/requests">
+          <div className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-black/10 bg-gradient-to-br from-punch-100 to-orange-100 px-3 py-4 text-center shadow-sm transition hover:shadow-md active:scale-95 dark:border-white/12 dark:from-punch-500/20 dark:to-orange-500/10">
+            <span className="text-2xl">👨‍🍳</span>
+            <div className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+              Cook view
+            </div>
+            <div className="text-[11px] text-slate-600 dark:text-zinc-400">
+              Requests / Matches
+            </div>
+          </div>
+        </Link>
+      </div>
+
       <Card className="p-4">
         <div className="flex items-center gap-2">
           <input

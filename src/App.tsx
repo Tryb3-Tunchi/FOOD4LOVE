@@ -96,7 +96,7 @@ function RequireAdmin() {
 function RequireOnboarding() {
   const { profile } = useAuth();
   if (!profile) return <Navigate to="/setup" replace />;
-  if (!profile.onboarding_completed) {
+  if (!profile.onboarding_completed && !profile.is_admin) {
     return (
       <Navigate
         to={

@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -8,13 +9,22 @@ import { useTheme } from "../hooks/useTheme";
 
 export function LoginPage() {
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+  const location = useLocation();
   const {
     user,
     signInWithOtp,
     signInWithPassword,
-    signOut,
     signUpWithPassword,
   } = useAuth();
+
+  const from = (location.state as { from?: string } | null)?.from ?? "/";
+
+  useEffect(() => {
+    if (user) {
+      navigate(from === "/login" ? "/" : from, { replace: true });
+    }
+  }, [user, navigate, from]);
   const [mode, setMode] = useState<"signup" | "signin">("signup");
   const [fullName, setFullName] = useState("");
   const [nickname, setNickname] = useState("");
@@ -134,13 +144,8 @@ export function LoginPage() {
 
       <Card className="border-black/10 bg-white/92 p-5 shadow-[0_26px_60px_-30px_rgba(2,6,23,0.25)] dark:border-white/12 dark:bg-slate-950/55 dark:shadow-[0_26px_60px_-34px_rgba(0,0,0,0.9)]">
         {user ? (
-          <div className="space-y-3">
-            <div className="text-sm text-slate-700 dark:text-zinc-200">
-              Signed in as {user.email ?? user.id}
-            </div>
-            <Button onClick={() => signOut()} variant="secondary">
-              Sign out
-            </Button>
+          <div className="flex items-center justify-center py-8">
+            <div className="h-7 w-7 animate-spin rounded-full border-2 border-brand-400 border-t-transparent" />
           </div>
         ) : (
           <>
