@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { MoonIcon, SunIcon, UserIcon } from "../components/ui/Icons";
@@ -15,8 +15,39 @@ export function ProfilePage() {
   const { theme, toggleTheme } = useTheme();
   const [savingParties, setSavingParties] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [specialText, setSpecialText] = useState("");
+  const [isSavingSpecial, setIsSavingSpecial] = useState(false);
 
   const isCook = profile?.role === "cook";
+
+  const isSpecialActive = Boolean(
+    profile?.daily_special &&
+    profile?.daily_special_until &&
+    new Date(profile.daily_special_until) > new Date()
+  );
+
+  useEffect(() => {
+    setSpecialText(isSpecialActive ? (profile?.daily_special ?? "") : "");
+  }, [profile?.daily_special, profile?.daily_special_until]);
+
+  const saveSpecial = async () => {
+    if (!profile || isSavingSpecial) return;
+    setIsSavingSpecial(true);
+    try {
+      const midnight = new Date();
+      midnight.setHours(23, 59, 59, 999);
+      await updateProfile({
+        daily_special: specialText.trim() || null,
+        daily_special_until: specialText.trim() ? midnight.toISOString() : null,
+      });
+    } catch {}
+    finally { setIsSavingSpecial(false); }
+  };
+
+  const clearSpecial = () => {
+    setSpecialText("");
+    void updateProfile({ daily_special: null, daily_special_until: null });
+  };
 
   const referralCode = profile?.referral_code ?? profile?.id?.slice(0, 8).toUpperCase() ?? null;
   const referralLink = referralCode ? `${window.location.origin}/login?ref=${referralCode}` : null;
@@ -189,6 +220,32 @@ export function ProfilePage() {
               </button>
             </Link>
 
+            {isCook ? (
+              <button
+                type="button"
+                onClick={toggleParties}
+                disabled={savingParties}
+                className="flex w-full items-center justify-between px-4 py-3.5 text-sm font-semibold text-slate-800 transition hover:bg-black/3 active:bg-black/5 disabled:opacity-50 dark:text-zinc-100 dark:hover:bg-white/5"
+              >
+                <span>🎉 Available for parties</span>
+                <span
+                  className={[
+                    "flex h-6 w-11 items-center rounded-full transition-colors",
+                    profile?.available_for_parties
+                      ? "bg-brand-500"
+                      : "bg-slate-200 dark:bg-zinc-700",
+                  ].join(" ")}
+                >
+                  <span
+                    className={[
+                      "h-5 w-5 rounded-full bg-white shadow transition-transform",
+                      profile?.available_for_parties ? "translate-x-5" : "translate-x-0.5",
+                    ].join(" ")}
+                  />
+                </span>
+              </button>
+            ) : null}
+
             <button
               type="button"
               className="flex w-full items-center justify-between px-4 py-3.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 active:bg-red-100 dark:text-red-400 dark:hover:bg-red-500/10"
@@ -199,6 +256,94 @@ export function ProfilePage() {
             </button>
           </div>
         </div>
+
+        {isCook ? (
+          <div className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-sm dark:border-white/[0.06] dark:bg-slate-900">
+            <div className="px-4 py-3.5">
+              <div className="mb-0.5 text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                Today&apos;s Special
+              </div>
+              <div className="text-xs text-slate-500 dark:text-zinc-400">
+                Post what you&apos;re making today — buyers see it live on your card
+              </div>
+            </div>
+            <div className="border-t border-black/6 px-4 py-3 dark:border-white/[0.05]">
+              <input
+                type="text"
+                maxLength={80}
+                value={specialText}
+                onChange={(e) => setSpecialText(e.target.value)}
+                placeholder="e.g. Egusi + Pounded Yam · ₦5,500 🍲"
+                className="w-full rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none dark:border-white/10 dark:bg-white/8 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              />
+              <div className="mt-2 flex gap-2">
+                <button
+                  type="button"
+                  onClick={saveSpecial}
+                  disabled={isSavingSpecial || !specialText.trim()}
+                  className="flex-1 rounded-xl bg-amber-400 py-2.5 text-sm font-bold text-amber-900 transition hover:bg-amber-500 active:scale-95 disabled:opacity-40"
+                >
+                  {isSavingSpecial ? "Posting…" : "Post for today"}
+                </button>
+                {isSpecialActive ? (
+                  <button
+                    type="button"
+                    onClick={clearSpecial}
+                    className="rounded-xl border border-black/10 px-3 py-2.5 text-xs font-semibold text-slate-500 transition hover:bg-black/5 active:scale-95 dark:border-white/10 dark:text-zinc-400"
+                  >
+                    Clear
+                  </button>
+                ) : null}
+              </div>
+              {isSpecialActive ? (
+                <div className="mt-2 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                  ✓ Live until midnight — buyers can see this on your card
+                </div>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
+        {referralCode ? (
+          <div className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-sm dark:border-white/[0.06] dark:bg-slate-900">
+            <div className="px-4 py-3.5">
+              <div className="mb-0.5 text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+                Referral Code
+              </div>
+              <div className="text-xs text-slate-500 dark:text-zinc-400">
+                Invite a friend — they get ₦500 off their first booking
+              </div>
+            </div>
+            <div className="flex items-center gap-2 border-t border-black/6 px-4 py-3 dark:border-white/[0.05]">
+              <div className="flex-1 rounded-xl bg-black/5 px-3 py-2 text-sm font-mono font-bold tracking-widest text-slate-900 dark:bg-white/8 dark:text-zinc-100">
+                {referralCode}
+              </div>
+              <button
+                type="button"
+                onClick={copyReferralLink}
+                className="rounded-xl bg-brand-500/10 px-3 py-2 text-xs font-bold text-brand-700 transition hover:bg-brand-500/20 active:scale-95 dark:text-brand-300"
+              >
+                {copied ? "Copied!" : "Copy link"}
+              </button>
+            </div>
+            {whatsappShareText ? (
+              <div className="border-t border-black/6 px-4 py-3 dark:border-white/[0.05]">
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(whatsappShareText)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-[#25D366]/40 bg-[#25D366]/10 py-2.5 text-sm font-bold text-[#1a9e4a] transition active:scale-95 dark:border-[#25D366]/30 dark:text-[#25D366]"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                    <path d="M12 0C5.374 0 0 5.373 0 12c0 2.117.549 4.103 1.51 5.833L.054 23.394a.75.75 0 00.917.916l5.562-1.456A11.945 11.945 0 0012 24c6.626 0 12-5.373 12-12S18.626 0 12 0zm0 21.75a9.708 9.708 0 01-4.95-1.353l-.354-.211-3.668.96.977-3.565-.229-.368A9.706 9.706 0 012.25 12C2.25 6.615 6.615 2.25 12 2.25S21.75 6.615 21.75 12 17.385 21.75 12 21.75z" />
+                  </svg>
+                  Share invite on WhatsApp
+                </a>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </div>
     </div>
   );

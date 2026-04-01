@@ -711,6 +711,13 @@ export function SwipePage() {
                 )}
 
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent px-4 pb-5 pt-16">
+                  {activeCook.daily_special &&
+                    activeCook.daily_special_until &&
+                    new Date(activeCook.daily_special_until) > new Date() ? (
+                    <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-amber-400/95 px-3 py-1 text-xs font-bold text-amber-900 shadow-sm backdrop-blur-sm">
+                      🍽️ Today: {activeCook.daily_special}
+                    </div>
+                  ) : null}
                   <div className="flex items-end justify-between gap-2">
                     <div>
                       <div className="text-2xl font-bold text-white">

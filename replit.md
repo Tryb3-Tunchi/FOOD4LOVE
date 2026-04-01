@@ -67,3 +67,28 @@ npm run build  # Production build to dist/
 Configured as a static site:
 - Build: `npm run build`
 - Serve from: `dist/`
+
+## New Features Added (Latest)
+
+### Cook Features
+- **Today's Special**: Cooks can post a daily special (dish + price, up to 80 chars) from their Profile tab. It shows as an amber badge on their swipe card, visible to all buyers. Auto-expires at midnight.
+- **Available for Parties**: Toggle in Profile tab for cooks. Shows as a badge on their info sheet. Buyers can filter by this in Discover.
+
+### Buyer Features
+- **Available for Parties filter**: Toggle in the Discover filter panel to show only cooks available for party catering.
+
+### Sharing & Growth
+- **WhatsApp Share on cook profiles**: Share any cook's profile link directly from the info drawer. Opens a shareable `/cook/:id` public page.
+- **Public cook profile page** (`/cook/:id`): Works without login. Shows cook photos, specialty, price, bio. Has "Match with me on Food4Love" CTA + WhatsApp share.
+- **Referral Code**: Every user gets a unique referral code shown on their Profile page with a "Share invite on WhatsApp" button.
+
+### Presence
+- **Online status**: Shows in the profile info drawer only (green/amber dot). Updates `last_seen_at` silently on app load.
+
+### Schema additions
+- `profiles.available_for_parties` boolean NOT NULL DEFAULT false
+- `profiles.last_seen_at` timestamptz
+- `profiles.referral_code` text
+- `profiles.daily_special` text
+- `profiles.daily_special_until` timestamptz
+- RLS policy for anon reads on profiles (for public cook page)

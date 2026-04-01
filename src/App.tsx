@@ -39,6 +39,7 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { ProfileSetupPage } from "./pages/ProfileSetupPage";
 import { RequestsPage } from "./pages/RequestsPage";
 import { SwipePage } from "./pages/SwipePage";
+import { CookPublicPage } from "./pages/CookPublicPage";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 
 function SupabaseConfigScreen() {
@@ -193,6 +194,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/verify-email" element={<VerifyEmailPage />} />
+      <Route path="/cook/:id" element={<CookPublicPage />} />
       <Route element={<RequireAuth />}>
         <Route path="/setup" element={<ProfileSetupPage />} />
         <Route element={<RequireProfile />}>
