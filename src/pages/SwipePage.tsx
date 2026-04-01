@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
-import { HeartIcon, InfoIcon, XIcon } from "../components/ui/Icons";
+import { HeartFilledIcon, HeartIcon, InfoIcon, XIcon } from "../components/ui/Icons";
 import { useAuth } from "../hooks/useAuth";
 import { useStories, type StoryWithCook } from "../hooks/useStories";
 import { useStreak } from "../hooks/useStreak";
@@ -434,10 +434,10 @@ function ProfileInfoSheet({
           <button
             type="button"
             onClick={() => { onLike(); onClose(); }}
-            className="group flex items-center justify-center rounded-full border-2 border-brand-400/40 bg-gradient-to-br from-brand-400 to-brand-600 shadow-xl shadow-brand-500/30 transition hover:border-brand-500/60 hover:scale-105 hover:shadow-brand-500/50 active:scale-95"
-            style={{ width: 72, height: 72 }}
+            className="group flex items-center justify-center rounded-full shadow-xl transition hover:scale-105 active:scale-95"
+            style={{ width: 72, height: 72, backgroundColor: "#f59e0b" }}
           >
-            <HeartIcon className="h-8 w-8 text-white transition group-hover:scale-110" />
+            <HeartFilledIcon className="h-8 w-8 text-white transition group-hover:scale-110" />
           </button>
         </div>
       </div>

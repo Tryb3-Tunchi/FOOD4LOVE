@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
-import { MoonIcon, SunIcon, UserIcon } from "../components/ui/Icons";
+import { MoonIcon, SunIcon, UserIcon, XIcon } from "../components/ui/Icons";
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
+import { uploadPublicMedia } from "../lib/media";
 
 const formatNaira = (n: number) => {
   if (n >= 1000) return `₦${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k`;
@@ -18,7 +19,38 @@ export function ProfilePage() {
   const [specialText, setSpecialText] = useState("");
   const [isSavingSpecial, setIsSavingSpecial] = useState(false);
 
+  const [photos, setPhotos] = useState<string[]>(() => profile?.photos ?? []);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+
   const isCook = profile?.role === "cook";
+
+  const addPhotos = async (files: FileList | null) => {
+    if (!files || !user?.id) return;
+    setPhotoError(null);
+    setIsUploadingPhoto(true);
+    try {
+      const picked = Array.from(files).slice(0, 5 - photos.length);
+      const next = await Promise.all(
+        picked.map((file) =>
+          uploadPublicMedia({ userId: user.id, folder: "profile", file, maxWidth: 1080, maxHeight: 1350, quality: 0.82 })
+        )
+      );
+      const updated = [...photos, ...next].slice(0, 5);
+      setPhotos(updated);
+      await updateProfile({ photos: updated, avatar_url: updated[0] ?? profile?.avatar_url });
+    } catch (err) {
+      setPhotoError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  const removePhoto = async (idx: number) => {
+    const updated = photos.filter((_, i) => i !== idx);
+    setPhotos(updated);
+    await updateProfile({ photos: updated, avatar_url: updated[0] ?? null });
+  };
 
   const isSpecialActive = Boolean(
     profile?.daily_special &&
@@ -176,6 +208,61 @@ export function ProfilePage() {
               ))}
             </div>
           ) : null}
+        </div>
+
+        <div className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-sm dark:border-white/[0.06] dark:bg-slate-900">
+          <div className="px-4 pt-3.5 pb-2">
+            <div className="text-[11px] font-bold uppercase tracking-widest text-slate-400 dark:text-zinc-500">
+              My Photos
+            </div>
+            <div className="mt-2 text-[11px] text-slate-500 dark:text-zinc-500">
+              First photo is your profile picture. Up to 5 total.
+            </div>
+          </div>
+          <div className="px-4 pb-4">
+            <div className="grid grid-cols-3 gap-2">
+              {photos.map((src, idx) => (
+                <div
+                  key={src}
+                  className="relative aspect-square overflow-hidden rounded-xl bg-black/5 dark:bg-white/8"
+                >
+                  <img src={src} alt="" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(idx)}
+                    className="absolute right-1 top-1 rounded-full bg-black/60 p-1.5 text-white backdrop-blur hover:bg-black/80"
+                    aria-label="Remove photo"
+                  >
+                    <XIcon className="h-3 w-3" />
+                  </button>
+                  {idx === 0 ? (
+                    <span className="absolute bottom-1 left-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[9px] font-bold text-white backdrop-blur">
+                      MAIN
+                    </span>
+                  ) : null}
+                </div>
+              ))}
+              {photos.length < 5 ? (
+                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-black/15 bg-white/60 text-center text-xs font-semibold text-slate-600 hover:bg-white/80 dark:border-white/12 dark:bg-white/5 dark:text-zinc-400">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => addPhotos(e.target.files)}
+                    disabled={isUploadingPhoto}
+                  />
+                  <span className="text-lg leading-none">{isUploadingPhoto ? "⏳" : "+"}</span>
+                  <span className="text-[10px]">{isUploadingPhoto ? "Uploading…" : "Add"}</span>
+                </label>
+              ) : null}
+            </div>
+            {photoError ? (
+              <div className="mt-2 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-400">
+                {photoError}
+              </div>
+            ) : null}
+          </div>
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-sm dark:border-white/[0.06] dark:bg-slate-900">

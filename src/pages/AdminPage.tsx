@@ -175,7 +175,7 @@ export function AdminPage() {
           { label: "Total", value: items.length, color: "bg-slate-100 dark:bg-white/8" },
           { label: "Cooks", value: totalCooks, color: "bg-brand-500/10 dark:bg-brand-400/10" },
           { label: "Buyers", value: totalBuyers, color: "bg-punch-500/10 dark:bg-punch-400/10" },
-          { label: "Verified", value: totalVerified, color: "bg-green-500/10 dark:bg-green-400/10" },
+          { label: "Bots", value: totalBots, color: "bg-violet-500/10 dark:bg-violet-400/10" },
         ].map((s) => (
           <div
             key={s.label}

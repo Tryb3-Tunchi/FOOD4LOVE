@@ -23,10 +23,13 @@ export function ProfileSetupPage() {
   const [favoriteFoods, setFavoriteFoods] = useState<string[]>(
     (profile?.favorite_foods ?? []).filter(Boolean),
   );
+  const [age, setAge] = useState<string>(profile?.age ? String(profile.age) : "");
   const [lat, setLat] = useState<number | null>(profile?.lat ?? null);
   const [lng, setLng] = useState<number | null>(profile?.lng ?? null);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const ageAlreadySet = Boolean(profile?.age && profile.onboarding_completed);
 
   const cuisineOptions = [
     "Nigerian",
@@ -110,6 +113,7 @@ export function ProfileSetupPage() {
     setError(null);
     setIsSaving(true);
     try {
+      const parsedAge = age.trim() ? parseInt(age.trim(), 10) : null;
       const next = await upsertProfile({
         role,
         name: name.trim(),
@@ -121,6 +125,7 @@ export function ProfileSetupPage() {
         cuisines: cuisines.length > 0 ? cuisines : null,
         interests: interests.length > 0 ? interests : null,
         favorite_foods: favoriteFoods.length > 0 ? favoriteFoods : null,
+        age: ageAlreadySet ? profile!.age : (parsedAge && parsedAge >= 18 && parsedAge <= 80 ? parsedAge : null),
         lat,
         lng,
       });
@@ -195,6 +200,38 @@ export function ProfileSetupPage() {
             placeholder="Your name"
             className="w-full rounded-xl border border-black/10 bg-white/70 px-3 py-3 text-sm text-slate-900 outline-none ring-brand-400/40 focus:ring-2 dark:border-white/15 dark:bg-white/6 dark:text-zinc-100"
           />
+        </label>
+
+        <label className="block">
+          <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-zinc-300">
+            Age
+            {ageAlreadySet ? (
+              <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold text-amber-700 dark:text-amber-400">
+                locked after signup
+              </span>
+            ) : null}
+          </div>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={18}
+            max={80}
+            value={age}
+            onChange={(e) => { if (!ageAlreadySet) setAge(e.target.value); }}
+            readOnly={ageAlreadySet}
+            placeholder="Your age (18–80)"
+            className={[
+              "w-full rounded-xl border border-black/10 px-3 py-3 text-sm text-slate-900 outline-none ring-brand-400/40 dark:text-zinc-100",
+              ageAlreadySet
+                ? "bg-black/5 text-slate-500 dark:bg-white/5 dark:text-zinc-400 cursor-not-allowed"
+                : "bg-white/70 focus:ring-2 dark:border-white/15 dark:bg-white/6",
+            ].join(" ")}
+          />
+          {!ageAlreadySet ? (
+            <div className="mt-1 text-[10px] text-slate-500 dark:text-zinc-500">
+              You cannot change your age after completing signup.
+            </div>
+          ) : null}
         </label>
 
         <label className="block">
