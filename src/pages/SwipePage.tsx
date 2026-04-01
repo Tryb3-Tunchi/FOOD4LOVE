@@ -549,7 +549,7 @@ export function SwipePage() {
         : "People";
 
   return (
-    <div className="mx-auto flex max-h-svh min-h-svh max-w-md flex-col overflow-hidden px-4 py-4">
+    <div className="mx-auto flex min-h-svh max-w-md flex-col px-4 py-4">
       <header className="mb-4 flex items-center justify-between">
         <div>
           <div className="text-sm font-semibold text-brand-700 dark:text-brand-300">
@@ -592,13 +592,13 @@ export function SwipePage() {
 
       <StoriesStrip stories={stories} onSelect={setSelectedStory} />
 
-      <div className="min-h-0 flex-1">
+      <div className="flex-1">
         {isLoading ? (
-          <div className="flex h-full min-h-[320px] items-center justify-center">
+          <div className="flex h-[440px] items-center justify-center">
             <div className="text-sm text-slate-400 dark:text-zinc-500">Loading…</div>
           </div>
         ) : isExhausted ? (
-          <div className="flex h-full min-h-[320px] flex-col items-center justify-center gap-4 text-center">
+          <div className="flex h-[440px] flex-col items-center justify-center gap-4 text-center">
             <div className="text-5xl">🍽️</div>
             <div className="text-xl font-bold text-slate-900 dark:text-zinc-100">
               You've seen everyone!
@@ -623,7 +623,7 @@ export function SwipePage() {
           </div>
         ) : activeCook ? (
           <div
-            className="relative h-full"
+            className="relative"
             style={{
               transform:
                 swipeAnim === "like"
@@ -635,10 +635,9 @@ export function SwipePage() {
               transition: swipeAnim ? "all 0.2s ease-out" : "none",
             }}
           >
-            <div className="relative h-full overflow-hidden rounded-3xl bg-black shadow-2xl dark:shadow-black/60">
+            <div className="relative overflow-hidden rounded-3xl bg-black shadow-2xl dark:shadow-black/60">
               <div
-                className="h-full w-full overflow-hidden"
-                style={{ aspectRatio: "4/5", maxHeight: "100%" }}
+                className="aspect-[4/5] w-full overflow-hidden"
                 onTouchStart={(e) => {
                   const t = e.touches[0];
                   setTouchStartX(t?.clientX ?? null);
@@ -781,7 +780,7 @@ export function SwipePage() {
         ) : null}
       </div>
 
-      <div className="mt-4 flex h-24 flex-shrink-0 items-center justify-center gap-6">
+      <div className="mt-2 flex flex-shrink-0 items-center justify-center gap-6 py-3 sm:mt-5">
         <button
           type="button"
           onClick={handleSkip}
