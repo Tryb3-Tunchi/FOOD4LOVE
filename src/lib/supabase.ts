@@ -50,6 +50,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const isSupabaseConfigured = !supabaseConfigError;
 export const supabaseConfigErrorMessage = supabaseConfigError;
 
+export const getSiteUrl = (): string => {
+  const envUrl = normalizeEnvValue(import.meta.env.VITE_SITE_URL);
+  if (envUrl) return envUrl.replace(/\/$/, "");
+  return window.location.origin;
+};
+
 export const supabase = createClient(
   supabaseUrl || "http://localhost",
   supabaseAnonKey || "missing-anon-key",

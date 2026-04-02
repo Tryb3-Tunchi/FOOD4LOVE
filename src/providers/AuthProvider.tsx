@@ -1,7 +1,7 @@
 import type { Session, User } from "@supabase/supabase-js";
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { supabase } from "../lib/supabase";
+import { getSiteUrl, supabase } from "../lib/supabase";
 import type { Profile, UserRole } from "../types/db";
 import { AuthContext } from "./AuthContext";
 
@@ -211,7 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signInWithOtp: async (email: string) => {
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: window.location.origin },
+        options: { emailRedirectTo: getSiteUrl() },
       });
       if (error) throw error;
     },
@@ -233,7 +233,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             name: input.full_name,
             display_name: input.full_name,
           },
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: getSiteUrl(),
         },
       });
       if (error) throw error;
@@ -243,7 +243,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { error } = await supabase.auth.resend({
         type: "signup",
         email,
-        options: { emailRedirectTo: window.location.origin },
+        options: { emailRedirectTo: getSiteUrl() },
       });
       if (error) throw error;
     },
