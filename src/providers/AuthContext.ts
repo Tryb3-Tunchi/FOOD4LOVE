@@ -30,6 +30,9 @@ export type AuthContextValue = {
     interests: string[] | null;
     favorite_foods: string[] | null;
     age?: number | null;
+    specialty?: string | null;
+    price_min?: number | null;
+    price_max?: number | null;
     lat: number | null;
     lng: number | null;
   }) => Promise<Profile>;

@@ -38,6 +38,7 @@ import { MatchesPage } from "./pages/MatchesPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { ProfileSetupPage } from "./pages/ProfileSetupPage";
 import { RequestsPage } from "./pages/RequestsPage";
+import { RoleSelectPage } from "./pages/RoleSelectPage";
 import { SwipePage } from "./pages/SwipePage";
 import { CookPublicPage } from "./pages/CookPublicPage";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
@@ -97,11 +98,13 @@ function RequireOnboarding() {
   const { profile } = useAuth();
   if (!profile) return <Navigate to="/setup" replace />;
   if (!profile.onboarding_completed && !profile.is_admin) {
+    const hasSetupProfile = profile.cuisines && profile.cuisines.length > 0;
+    if (!hasSetupProfile) {
+      return <Navigate to="/onboarding/role" replace />;
+    }
     return (
       <Navigate
-        to={
-          profile.role === "buyer" ? "/onboarding/photos" : "/onboarding/cook"
-        }
+        to={profile.role === "buyer" ? "/onboarding/photos" : "/onboarding/cook"}
         replace
       />
     );
@@ -196,6 +199,7 @@ function AppRoutes() {
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/cook/:id" element={<CookPublicPage />} />
       <Route element={<RequireAuth />}>
+        <Route path="/onboarding/role" element={<RoleSelectPage />} />
         <Route path="/setup" element={<ProfileSetupPage />} />
         <Route element={<RequireProfile />}>
           <Route element={<RequireAdmin />}>
