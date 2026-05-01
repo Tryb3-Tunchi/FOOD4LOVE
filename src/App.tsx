@@ -42,6 +42,8 @@ import { RoleSelectPage } from "./pages/RoleSelectPage";
 import { SwipePage } from "./pages/SwipePage";
 import { CookPublicPage } from "./pages/CookPublicPage";
 import { VerifyEmailPage } from "./pages/VerifyEmailPage";
+import { RatingPage } from "./pages/RatingPage";
+import { WalletPage } from "./pages/WalletPage";
 
 function SupabaseConfigScreen() {
   return (
@@ -81,6 +83,16 @@ function RequireAuth() {
   return <Outlet />;
 }
 
+function RequireEmailVerification() {
+  const { isLoading, emailVerified } = useAuth();
+  
+  if (isLoading)
+    return <div className="p-6 text-sm text-zinc-300">Loading…</div>;
+  if (!emailVerified)
+    return <Navigate to="/verify-email" replace />;
+  return <Outlet />;
+}
+
 function RequireProfile() {
   const { profile } = useAuth();
   if (!profile) return <Navigate to="/setup" replace />;
@@ -96,20 +108,43 @@ function RequireAdmin() {
 
 function RequireOnboarding() {
   const { profile } = useAuth();
+  
   if (!profile) return <Navigate to="/setup" replace />;
-  if (!profile.onboarding_completed && !profile.is_admin) {
-    const hasSetupProfile = profile.cuisines && profile.cuisines.length > 0;
-    if (!hasSetupProfile) {
-      return <Navigate to="/onboarding/role" replace />;
-    }
-    return (
-      <Navigate
-        to={profile.role === "buyer" ? "/onboarding/photos" : "/onboarding/cook"}
-        replace
-      />
-    );
+  if (profile.is_admin) return <Outlet />;
+  if (profile.onboarding_completed) return <Outlet />;
+  
+  // Onboarding not complete - redirect to appropriate step
+  const hasRole = Boolean(profile.role);
+  const hasBasicProfile = Boolean(profile.cuisines && profile.cuisines.length > 0);
+  
+  if (!hasRole) {
+    return <Navigate to="/onboarding/role" replace />;
   }
-  return <Outlet />;
+  
+  if (!hasBasicProfile) {
+    return <Navigate to="/setup" replace />;
+  }
+  
+  // Has role and basic profile, complete the role-specific onboarding
+  return (
+    <Navigate
+      to={profile.role === "buyer" ? "/onboarding/photos" : "/onboarding/cook"}
+      replace
+    />
+  );
+}
+
+function RequireCookKyc() {
+  const { profile } = useAuth();
+  
+  // Only cooks need KYC before chat, not buyers
+  if (profile?.role !== "cook") return <Outlet />;
+  
+  // Cooks must have verified KYC
+  if (profile.kyc_status === "verified") return <Outlet />;
+  
+  // Redirect to KYC page if cook not verified
+  return <Navigate to="/kyc" replace />;
 }
 
 function RoleIndexRedirect() {
@@ -199,26 +234,32 @@ function AppRoutes() {
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/cook/:id" element={<CookPublicPage />} />
       <Route element={<RequireAuth />}>
-        <Route path="/onboarding/role" element={<RoleSelectPage />} />
-        <Route path="/setup" element={<ProfileSetupPage />} />
-        <Route element={<RequireProfile />}>
-          <Route element={<RequireAdmin />}>
-            <Route path="/admin" element={<AdminPage />} />
-          </Route>
-          <Route path="/onboarding/photos" element={<BuyerPhotosPage />} />
-          <Route path="/onboarding/cook" element={<CookOnboardingPage />} />
-          <Route path="/kyc" element={<KycPage />} />
-          <Route element={<RequireOnboarding />}>
-            <Route element={<Shell />}>
-              <Route path="/" element={<RoleIndexRedirect />} />
-              <Route path="/swipe" element={<SwipePage />} />
-              <Route path="/requests" element={<RequestsPage />} />
-              <Route path="/likes" element={<LikesPage />} />
-              <Route path="/matches" element={<MatchesPage />} />
-              <Route path="/map" element={<MapPage />} />
-              <Route path="/chat/:matchId" element={<ChatPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/fun" element={<FunPage />} />
+        <Route element={<RequireEmailVerification />}>
+          <Route path="/setup" element={<ProfileSetupPage />} />
+          <Route path="/onboarding/role" element={<RoleSelectPage />} />
+          <Route element={<RequireProfile />}>
+            <Route element={<RequireAdmin />}>
+              <Route path="/admin" element={<AdminPage />} />
+            </Route>
+            <Route path="/onboarding/photos" element={<BuyerPhotosPage />} />
+            <Route path="/onboarding/cook" element={<CookOnboardingPage />} />
+            <Route path="/kyc" element={<KycPage />} />
+            <Route element={<RequireOnboarding />}>
+              <Route element={<Shell />}>
+                <Route path="/" element={<RoleIndexRedirect />} />
+                <Route path="/swipe" element={<SwipePage />} />
+                <Route path="/requests" element={<RequestsPage />} />
+                <Route path="/likes" element={<LikesPage />} />
+                <Route path="/matches" element={<MatchesPage />} />
+                <Route path="/map" element={<MapPage />} />
+                <Route element={<RequireCookKyc />}>
+                  <Route path="/chat/:matchId" element={<ChatPage />} />
+                  <Route path="/rating/:serviceId" element={<RatingPage />} />
+                </Route>
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/wallet" element={<WalletPage />} />
+                <Route path="/fun" element={<FunPage />} />
+              </Route>
             </Route>
           </Route>
         </Route>

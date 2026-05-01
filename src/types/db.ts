@@ -1,6 +1,7 @@
 export type UserRole = "cook" | "buyer" | "admin";
 export type LikeStatus = "pending" | "accepted" | "rejected";
 export type SwipeDirection = "like" | "pass";
+export type ServiceStatus = "pending" | "confirmed" | "preparing" | "completed" | "cancelled";
 
 export type Profile = {
   id: string;
@@ -100,4 +101,64 @@ export type UserStreak = {
   super_likes_available: number;
   created_at: string;
   updated_at: string;
+};
+
+export type Service = {
+  id: string;
+  match_id: string;
+  buyer_id: string;
+  cook_id: string;
+  status: ServiceStatus;
+  dish_name: string;
+  price: number;
+  scheduled_date: string | null;
+  location: string | null;
+  notes: string | null;
+  agreed_by_both: boolean;
+  agreed_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Review = {
+  id: string;
+  service_id: string;
+  reviewer_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+};
+
+export type CookEarnings = {
+  id: string;
+  cook_id: string;
+  service_id: string;
+  amount_earned: number;
+  platform_fee_percent: number;
+  amount_paid: number;
+  payment_date: string | null;
+  status: "unpaid" | "processing" | "paid";
+  created_at: string;
+  updated_at: string;
+};
+
+export type Referral = {
+  id: string;
+  referrer_id: string;
+  referred_id: string;
+  bonus_amount: number;
+  status: "pending" | "completed";
+  completed_at: string | null;
+  created_at: string;
+};
+
+export type WalletTransaction = {
+  id: string;
+  user_id: string;
+  amount: number;
+  type: "referral" | "payment_received" | "payment_sent" | "admin_credit";
+  description: string | null;
+  reference_id: string | null;
+  created_at: string;
 };

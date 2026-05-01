@@ -4,6 +4,7 @@ import { Button } from "../components/ui/Button";
 import { MoonIcon, SunIcon, UserIcon, XIcon } from "../components/ui/Icons";
 import { useAuth } from "../hooks/useAuth";
 import { useTheme } from "../hooks/useTheme";
+import { useWallet, useReferral } from "../hooks/useWallet";
 import { uploadPublicMedia } from "../lib/media";
 
 const formatNaira = (n: number) => {
@@ -14,6 +15,9 @@ const formatNaira = (n: number) => {
 export function ProfilePage() {
   const { user, profile, signOut, updateProfile } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { balance } = useWallet(user?.id ?? null);
+  const { referralCode, generateReferralCode } = useReferral(user?.id ?? null);
+
   const [savingParties, setSavingParties] = useState(false);
   const [copied, setCopied] = useState(false);
   const [specialText, setSpecialText] = useState("");
@@ -24,6 +28,13 @@ export function ProfilePage() {
   const [photoError, setPhotoError] = useState<string | null>(null);
 
   const isCook = profile?.role === "cook";
+
+  // Generate referral code on first load if not present
+  useEffect(() => {
+    if (user?.id && !referralCode) {
+      generateReferralCode().catch(() => {});
+    }
+  }, [user?.id, referralCode, generateReferralCode]);
 
   const addPhotos = async (files: FileList | null) => {
     if (!files || !user?.id) return;
@@ -81,7 +92,6 @@ export function ProfilePage() {
     void updateProfile({ daily_special: null, daily_special_until: null });
   };
 
-  const referralCode = profile?.referral_code ?? profile?.id?.slice(0, 8).toUpperCase() ?? null;
   const referralLink = referralCode ? `${window.location.origin}/login?ref=${referralCode}` : null;
 
   const copyReferralLink = () => {
@@ -390,6 +400,28 @@ export function ProfilePage() {
             </div>
           </div>
         ) : null}
+
+        {/* Wallet Balance Card */}
+        <Link to="/wallet" className="block">
+          <div className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-sm transition hover:shadow-md dark:border-white/[0.06] dark:bg-slate-900">
+            <div className="px-4 py-3.5">
+              <div className="mb-0.5 text-[11px] font-bold uppercase tracking-widest text-brand-600 dark:text-brand-400">
+                💰 Wallet
+              </div>
+              <div className="flex items-baseline justify-between">
+                <div className="text-xs text-slate-500 dark:text-zinc-400">
+                  Available balance
+                </div>
+                <div className="text-2xl font-bold text-brand-700 dark:text-brand-300">
+                  ₦{balance.toLocaleString()}
+                </div>
+              </div>
+            </div>
+            <div className="border-t border-black/6 px-4 py-3 text-xs font-semibold text-slate-600 dark:border-white/[0.05] dark:text-zinc-400">
+              View balance, transactions & referral earnings →
+            </div>
+          </div>
+        </Link>
 
         {referralCode ? (
           <div className="overflow-hidden rounded-2xl border border-black/8 bg-white shadow-sm dark:border-white/[0.06] dark:bg-slate-900">

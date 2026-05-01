@@ -5,10 +5,10 @@ import { Card } from "../components/ui/Card";
 import { useAuth } from "../hooks/useAuth";
 import { useStories } from "../hooks/useStories";
 import { supabase } from "../lib/supabase";
-import type { Profile } from "../types/db";
+import type { CookEarnings, Profile } from "../types/db";
 
 type Row = Profile;
-type AdminTab = "overview" | "cooks" | "buyers" | "stories";
+type AdminTab = "overview" | "cooks" | "buyers" | "stories" | "earnings";
 
 export function AdminPage() {
   const { user, profile } = useAuth();
@@ -16,6 +16,7 @@ export function AdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSeeding, setIsSeeding] = useState(false);
   const [items, setItems] = useState<Row[]>([]);
+  const [earnings, setEarnings] = useState<CookEarnings[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [seedRole, setSeedRole] = useState<"cook" | "buyer" | "both">("both");
@@ -45,6 +46,25 @@ export function AdminPage() {
   useEffect(() => {
     refresh().catch(() => {});
   }, [refresh]);
+
+  const loadEarnings = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("cook_earnings")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setEarnings((data as CookEarnings[]) ?? []);
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "earnings") {
+      loadEarnings().catch(() => {});
+    }
+  }, [activeTab, loadEarnings]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -147,6 +167,7 @@ export function AdminPage() {
     { key: "overview", label: "Overview" },
     { key: "cooks", label: `Cooks (${totalCooks})` },
     { key: "buyers", label: `Buyers (${totalBuyers})` },
+    { key: "earnings", label: "Earnings" },
     { key: "stories", label: `Stories (${stories.length})` },
   ];
 
@@ -478,6 +499,76 @@ export function AdminPage() {
                 </div>
               );
             })
+          )}
+        </div>
+      )}
+
+      {activeTab === "earnings" && (
+        <div className="space-y-4">
+          {earnings.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-black/10 bg-black/2 p-6 text-center text-xs text-slate-500 dark:border-white/10 dark:bg-white/[0.02] dark:text-zinc-400">
+              No earnings yet.
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  {
+                    label: "Total Earned",
+                    value: `₦${earnings.reduce((sum, e) => sum + e.amount_earned, 0).toLocaleString()}`,
+                  },
+                  {
+                    label: "Total Paid",
+                    value: `₦${earnings.reduce((sum, e) => sum + (e.status === "paid" ? e.amount_paid : 0), 0).toLocaleString()}`,
+                  },
+                  {
+                    label: "Pending",
+                    value: `₦${earnings.reduce((sum, e) => sum + (e.status !== "paid" ? e.amount_earned : 0), 0).toLocaleString()}`,
+                  },
+                ].map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="rounded-lg border border-black/8 bg-white/50 p-2 dark:border-white/10 dark:bg-slate-900/30"
+                  >
+                    <div className="text-xs font-bold text-slate-900 dark:text-zinc-100">
+                      {stat.value}
+                    </div>
+                    <div className="text-[10px] text-slate-500 dark:text-zinc-400">
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="space-y-1 rounded-lg border border-black/8 bg-white/50 dark:border-white/10 dark:bg-slate-900/30">
+                {earnings.slice(0, 20).map((e) => (
+                  <div
+                    key={e.id}
+                    className="flex items-center justify-between border-b border-black/5 px-3 py-2 text-xs last:border-b-0 dark:border-white/5"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-slate-900 dark:text-zinc-100">
+                        Service {e.service_id.slice(0, 8)}...
+                      </div>
+                      <div className="text-slate-500 dark:text-zinc-400">
+                        Earned: ₦{e.amount_earned.toLocaleString()} (Fee: {e.platform_fee_percent}%)
+                      </div>
+                    </div>
+                    <div
+                      className={`rounded px-2 py-1 text-[10px] font-semibold ${
+                        e.status === "paid"
+                          ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
+                          : e.status === "processing"
+                            ? "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300"
+                            : "bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-300"
+                      }`}
+                    >
+                      {e.status.charAt(0).toUpperCase() + e.status.slice(1)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       )}

@@ -182,3 +182,16 @@ export function EyeOffIcon(props: Props) {
     </svg>
   );
 }
+
+export function ShieldIcon(props: Props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+      <path
+        d="M12 2C12 2 4 5 4 10c0 4 3 9 8 11 5-2 8-7 8-11 0-5-8-8-8-8Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
