@@ -72,6 +72,9 @@ alter table if exists public.profiles add column if not exists price_max int nul
 alter table if exists public.profiles add column if not exists is_bot boolean not null default false;
 alter table if exists public.profiles add column if not exists bot_persona text null;
 alter table if exists public.profiles add column if not exists is_admin boolean not null default false;
+alter table if exists public.profiles add column if not exists wallet_balance int not null default 0;
+alter table if exists public.profiles add column if not exists referral_code text unique null;
+alter table if exists public.profiles add column if not exists referred_by_id uuid null references public.profiles (id) on delete set null;
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -86,6 +89,23 @@ drop trigger if exists profiles_set_updated_at on public.profiles;
 create trigger profiles_set_updated_at
 before update on public.profiles
 for each row execute function public.set_updated_at();
+
+create or replace function public.prevent_role_change()
+returns trigger
+language plpgsql
+as $$
+begin
+  -- If role is changing and cuisines have been set (onboarding started), prevent it
+  if old.role is distinct from new.role and (old.cuisines is not null or old.onboarding_completed) then
+    raise exception 'Cannot change role after onboarding has started';
+  end if;
+  return new;
+end $$;
+
+drop trigger if exists profiles_prevent_role_change on public.profiles;
+create trigger profiles_prevent_role_change
+before update on public.profiles
+for each row execute function public.prevent_role_change();
 
 create table if not exists public.dishes (
   id uuid primary key default gen_random_uuid(),
@@ -148,12 +168,48 @@ create table if not exists public.messages (
   created_at timestamptz not null default now()
 );
 
-alter table public.profiles enable row level security;
-alter table public.dishes enable row level security;
-alter table public.likes enable row level security;
-alter table public.swipes enable row level security;
-alter table public.matches enable row level security;
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'service_status') then
+    create type public.service_status as enum ('pending', 'confirmed', 'preparing', 'completed', 'cancelled');
+  end if;
+end $$;
+
+create table if not exists public.services (
+  id uuid primary key default gen_random_uuid(),
+  match_id uuid not null references public.matches (id) on delete cascade,
+  buyer_id uuid not null references public.profiles (id) on delete cascade,
+  cook_id uuid not null references public.profiles (id) on delete cascade,
+  status public.service_status not null default 'pending',
+  dish_name text not null,
+  price int not null,
+  scheduled_date timestamptz null,
+  location text null,
+  notes text null,
+  agreed_by_both boolean not null default false,
+  agreed_at timestamptz null,
+  completed_at timestamptz null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create trigger services_set_updated_at
+before update on public.services
+for each row execute function public.set_updated_at();
+
+create table if not exists public.reviews (
+  id uuid primary key default gen_random_uuid(),
+  service_id uuid not null references public.services (id) on delete cascade,
+  reviewer_id uuid not null references public.profiles (id) on delete cascade,
+  rating int not null check (rating >= 1 and rating <= 5),
+  comment text null,
+  created_at timestamptz not null default now(),
+  unique (service_id, reviewer_id)
+);
+
 alter table public.messages enable row level security;
+alter table public.services enable row level security;
+alter table public.reviews enable row level security;
 
 drop policy if exists "profiles_select" on public.profiles;
 create policy "profiles_select"
@@ -437,6 +493,91 @@ with check (auth.uid() = user_id);
 drop policy if exists "streaks_admin_select" on public.user_streaks;
 create policy "streaks_admin_select"
 on public.user_streaks for select to authenticated
+using (true);
+
+-- Cook Earnings Tracking Table
+create table if not exists public.cook_earnings (
+  id uuid primary key default gen_random_uuid(),
+  cook_id uuid not null references public.profiles (id) on delete cascade,
+  service_id uuid not null references public.services (id) on delete cascade,
+  amount_earned int not null,
+  platform_fee_percent int not null default 10,
+  amount_paid int not null,
+  payment_date timestamptz null,
+  status text not null default 'unpaid' check (status in ('unpaid', 'processing', 'paid')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(cook_id, service_id)
+);
+
+alter table public.cook_earnings enable row level security;
+
+drop policy if exists "earnings_select_own" on public.cook_earnings;
+create policy "earnings_select_own"
+on public.cook_earnings for select to authenticated
+using (auth.uid() = cook_id);
+
+drop policy if exists "earnings_admin_select" on public.cook_earnings;
+create policy "earnings_admin_select"
+on public.cook_earnings for select to authenticated
+using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true));
+
+drop policy if exists "earnings_insert_admin" on public.cook_earnings;
+create policy "earnings_insert_admin"
+on public.cook_earnings for insert to authenticated
+with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true));
+
+-- Referral Tracking
+create table if not exists public.referrals (
+  id uuid primary key default gen_random_uuid(),
+  referrer_id uuid not null references public.profiles (id) on delete cascade,
+  referred_id uuid not null references public.profiles (id) on delete cascade,
+  bonus_amount int not null default 700,
+  status text not null default 'pending' check (status in ('pending', 'completed')),
+  completed_at timestamptz null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.referrals enable row level security;
+
+drop policy if exists "referrals_select" on public.referrals;
+create policy "referrals_select"
+on public.referrals for select to authenticated
+using (auth.uid() = referrer_id or auth.uid() = referred_id);
+
+drop policy if exists "referrals_insert" on public.referrals;
+create policy "referrals_insert"
+on public.referrals for insert to authenticated
+with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true));
+
+-- Wallet Transactions
+create table if not exists public.wallet_transactions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.profiles (id) on delete cascade,
+  amount int not null,
+  type text not null check (type in ('referral', 'payment_received', 'payment_sent', 'admin_credit')),
+  description text null,
+  reference_id uuid null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.wallet_transactions enable row level security;
+
+drop policy if exists "wallet_transactions_select" on public.wallet_transactions;
+create policy "wallet_transactions_select"
+on public.wallet_transactions for select to authenticated
+using (auth.uid() = user_id);
+
+drop policy if exists "wallet_transactions_insert_admin" on public.wallet_transactions;
+create policy "wallet_transactions_insert_admin"
+on public.wallet_transactions for insert to authenticated
+with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true));
+using (auth.uid() = user_id)
+with check (auth.uid() = user_id);
+
+drop policy if exists "streaks_admin_select" on public.user_streaks;
+create policy "streaks_admin_select"
+on public.user_streaks for select to authenticated
 using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.is_admin = true));
 
 drop policy if exists "messages_select" on public.messages;
@@ -464,3 +605,39 @@ with check (
     where m.id = match_id and (m.buyer_id = auth.uid() or m.cook_id = auth.uid())
   )
 );
+
+drop policy if exists "services_select" on public.services;
+create policy "services_select"
+on public.services
+for select
+to authenticated
+using (auth.uid() = buyer_id or auth.uid() = cook_id);
+
+drop policy if exists "services_insert" on public.services;
+create policy "services_insert"
+on public.services
+for insert
+to authenticated
+with check (auth.uid() = buyer_id or auth.uid() = cook_id);
+
+drop policy if exists "services_update" on public.services;
+create policy "services_update"
+on public.services
+for update
+to authenticated
+using (auth.uid() = buyer_id or auth.uid() = cook_id)
+with check (auth.uid() = buyer_id or auth.uid() = cook_id);
+
+drop policy if exists "reviews_select" on public.reviews;
+create policy "reviews_select"
+on public.reviews
+for select
+to authenticated
+using (true);
+
+drop policy if exists "reviews_insert" on public.reviews;
+create policy "reviews_insert"
+on public.reviews
+for insert
+to authenticated
+with check (auth.uid() = reviewer_id);

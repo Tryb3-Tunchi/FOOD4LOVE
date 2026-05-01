@@ -4,6 +4,7 @@ import type { Profile, UserRole } from "../types/db";
 
 export type AuthContextValue = {
   isLoading: boolean;
+  emailVerified: boolean;
   session: Session | null;
   user: User | null;
   profile: Profile | null;

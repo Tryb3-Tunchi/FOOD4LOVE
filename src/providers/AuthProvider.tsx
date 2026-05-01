@@ -42,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const emailVerified = user?.email_confirmed_at != null;
 
   const refreshProfile = useCallback(async () => {
     const { data: userData } = await supabase.auth.getUser();
@@ -205,6 +206,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = {
     isLoading: isAuthLoading || isProfileLoading,
+    emailVerified,
     session,
     user,
     profile,

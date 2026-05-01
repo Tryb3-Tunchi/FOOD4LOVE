@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -5,10 +6,17 @@ import { useAuth } from "../hooks/useAuth";
 type Role = "buyer" | "cook";
 
 export function RoleSelectPage() {
-  const { updateProfile } = useAuth();
+  const { profile, updateProfile } = useAuth();
   const navigate = useNavigate();
   const [selected, setSelected] = useState<Role | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Redirect if role already selected and onboarding started
+  useEffect(() => {
+    if (profile?.onboarding_completed || (profile?.role && profile.cuisines?.length)) {
+      navigate("/", { replace: true });
+    }
+  }, [profile, navigate]);
 
   const ROLES: {
     id: Role;
